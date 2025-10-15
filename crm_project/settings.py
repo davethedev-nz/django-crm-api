@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'contacts',
     'companies',
     'deals',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -170,3 +171,13 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Login/Logout redirect URLs
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+
+# Login/Logout redirect URLs
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
