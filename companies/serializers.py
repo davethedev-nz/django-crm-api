@@ -7,12 +7,14 @@ class CompanySerializer(serializers.ModelSerializer):
     
     contacts_count = serializers.SerializerMethodField()
     deals_count = serializers.SerializerMethodField()
+    milestone_display = serializers.CharField(source='get_milestone_display', read_only=True)
     
     class Meta:
         model = Company
         fields = [
             'id', 'name', 'website', 'email', 'phone', 'address',
-            'industry', 'notes', 'contacts_count', 'deals_count',
+            'industry', 'milestone', 'milestone_display', 'notes', 
+            'contacts_count', 'deals_count',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
@@ -27,6 +29,8 @@ class CompanySerializer(serializers.ModelSerializer):
 class CompanyListSerializer(serializers.ModelSerializer):
     """Simplified serializer for listing companies."""
     
+    milestone_display = serializers.CharField(source='get_milestone_display', read_only=True)
+    
     class Meta:
         model = Company
-        fields = ['id', 'name', 'industry', 'email', 'phone']
+        fields = ['id', 'name', 'industry', 'email', 'phone', 'milestone', 'milestone_display']
