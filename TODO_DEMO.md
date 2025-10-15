@@ -1,4 +1,4 @@
-# Pre-Demo TODO List
+# Django CRM - TODO List
 
 ## 🎯 Critical Features (Must Have)
 
@@ -7,35 +7,42 @@
 - [x] User login
 - [x] Logout functionality
 - [x] CSRF protection configured for Railway
+- [x] CSRF token handling for AJAX requests
 - [ ] Password reset functionality
-- [ ] Email verification (optional but recommended)
+- [ ] Email verification (optional)
 
 ### Dashboard
 - [x] Basic dashboard with milestone visualization
 - [x] Bar chart showing companies by milestone
 - [x] Statistics cards (total, successful, active)
+- [x] Quick action buttons (Add Company, View All Companies)
+- [x] Clean white button design with purple accents
 - [ ] Add date range filter for statistics
 - [ ] Add recent activity feed
-- [ ] Add quick action buttons (Add Company, Add Contact, etc.)
 
 ### Company Management
-- [x] List all companies
+- [x] List all companies (table view)
 - [x] Create new company
 - [x] Update company details
 - [x] Delete company
 - [x] Milestone tracking (7 stages)
-- [ ] Company detail page in UI (not just API)
-- [ ] Bulk milestone updates
-- [ ] Company search and filtering in UI
+- [x] Company detail page in UI
+- [x] **Inline milestone updates** (dropdown in list view with AJAX)
+- [x] Company search and filtering in UI
+- [x] Email field made optional (no HTML5 validation issue)
+- [ ] Bulk milestone updates (multiple companies at once)
 - [ ] Export companies to CSV
 
 ### Contact Management
 - [x] API endpoints for contacts
-- [ ] Contact list page in UI
-- [ ] Add/Edit contact form in UI
-- [ ] Link contacts to companies
-- [ ] Contact search functionality
+- [x] Contact list page in UI (table view)
+- [x] Add/Edit contact form in UI
+- [x] Link contacts to companies
+- [x] Contact detail page
+- [x] Contact search functionality
+- [x] Full CRUD operations
 - [ ] Import contacts from CSV
+- [ ] Bulk operations
 
 ### Deals/Opportunities
 - [x] API endpoints for deals
@@ -48,15 +55,18 @@
 ## 🔧 Nice to Have Features
 
 ### UI/UX Improvements
-- [ ] Responsive mobile design testing
-- [ ] Loading states and spinners
-- [ ] Error handling and user feedback
-- [ ] Toast notifications for actions
-- [ ] Confirmation dialogs for delete actions
+- [x] Responsive mobile design (implemented)
+- [x] Loading states for AJAX operations
+- [x] Error handling and user feedback (console logs + alerts)
+- [x] Confirmation dialogs for delete actions
+- [ ] Toast notifications for actions (using alerts currently)
 - [ ] Dark mode toggle
+- [ ] Better form validation feedback
 
 ### Navigation
-- [ ] Main navigation menu
+- [x] Main navigation menu (vertical sidebar)
+- [x] Clean sidebar with logo and user info only
+- [x] Active state highlighting
 - [ ] Breadcrumbs
 - [ ] Quick search in navbar
 - [ ] Keyboard shortcuts
@@ -114,18 +124,24 @@
 ### Production Readiness
 - [x] CSRF_TRUSTED_ORIGINS configured
 - [x] Secure cookies for production
+- [x] Railway domains added to ALLOWED_HOSTS
+- [x] Custom domain configured (crm-dev.davethedev.co.nz)
+- [x] SSL/HTTPS working
+- [x] Health check endpoint configured
+- [x] Dockerfile optimized with startup script
 - [ ] Error logging (Sentry or similar)
 - [ ] Performance monitoring
 - [ ] Automated backups
-- [ ] SSL/HTTPS verification
-- [ ] Domain setup (if applicable)
 
 ### CI/CD
-- [x] GitHub Actions for tests
-- [x] Auto-deploy to Railway development
-- [x] Auto-deploy to Railway production
+- [x] GitHub repository setup
+- [x] Auto-deploy to Railway development (on push to develop)
+- [x] Auto-deploy to Railway production (on push to main)
+- [x] Automated database migrations (runs on startup)
+- [x] Seed data import (runs on startup)
+- [x] Auto-commit script for rapid development
 - [ ] Run tests before deployment
-- [ ] Automated database migrations
+- [ ] GitHub Actions for automated testing
 
 ## 📊 Priority Recommendation
 
@@ -168,36 +184,72 @@
 6. **API capabilities** (show REST API if technical audience)
 7. **Future roadmap** (get feedback on what they want)
 
-## 💡 Quick Wins (Can Do Tonight)
+## ✅ Recently Completed
 
-These can be done quickly to make the demo more impressive:
+### Latest Features (October 16, 2025)
+- [x] **Table-based list views** for companies and contacts
+- [x] **Inline milestone editing** with AJAX (no page reload)
+- [x] **Color-coded milestone dropdowns** for visual feedback
+- [x] **Email validation fix** (no longer requires valid email format on empty fields)
+- [x] **JSON parse error fixed** (CSRF cookie handling improved)
+- [x] **Enhanced error logging** for debugging AJAX issues
+- [x] **Dashboard button styling** restored (white background with purple border)
+- [x] **Documentation organized** (moved to guides/ folder)
+- [x] **Seed data import** (management command + auto-run on startup)
 
-1. **Add navigation menu** - Simple top nav with Dashboard, Companies, Contacts, Deals
-2. **Company list page** - Show all companies in a table with milestone badges
-3. **Quick action buttons** - "Add Company" button on dashboard
-4. **Error handling** - Show friendly error messages instead of crashes
-5. **Loading states** - Add "Loading..." text while data loads
-6. **Sample data** - Create script to generate realistic demo data
+### Infrastructure
+- [x] Vertical sidebar navigation (clean, minimal design)
+- [x] Base template system (DRY principle)
+- [x] Static files configured with WhiteNoise
+- [x] PostgreSQL database on Railway
+- [x] Gunicorn production server
+- [x] Environment variables managed via Railway
 
-## 🎯 Absolute Minimum for Demo
+## 💡 Next Quick Wins
 
-If time is very limited, these are the bare essentials:
+### High Priority
+1. **Deal Management UI** - Create list, form, and detail pages
+2. **Bulk Operations** - Select multiple companies/contacts for batch updates
+3. **Export to CSV** - Download companies, contacts, or deals
+4. **Toast Notifications** - Replace alerts with nice toast messages
+5. **Activity Timeline** - Show recent changes and updates
 
+### Medium Priority
+6. **Advanced Filters** - Date ranges, multiple criteria
+7. **Notes System** - Add notes to companies, contacts, deals
+8. **Email Templates** - Quick email composition from contacts
+9. **Calendar Integration** - Schedule follow-ups and meetings
+10. **Reports & Analytics** - More detailed statistics and insights
+
+## 🎯 Demo-Ready Status
+
+### Core Features: ✅ 95% Complete
 1. ✅ Working login/register
 2. ✅ Dashboard with milestone chart
-3. ✅ Working API for companies
-4. 🔲 Simple company list page in UI
-5. 🔲 Ability to add/edit company from UI
-6. 🔲 Navigation between pages
-7. 🔲 Sample data loaded
+3. ✅ Working API for companies, contacts, deals
+4. ✅ Company list page with inline editing
+5. ✅ Contact list page with full CRUD
+6. ✅ Ability to add/edit company from UI
+7. ✅ Navigation between pages
+8. ✅ Seed data loaded automatically
+9. ✅ Deployed to Railway (dev + prod)
+10. ✅ Custom domain configured
+
+### Missing for 100%
+- [ ] Deal management UI (API exists, UI needed)
+- [ ] CSV export functionality
+- [ ] Advanced reporting
 
 ---
 
-**Current Status:** 🟡 Demo-ready at 60%
+**Current Status:** � **Demo-ready at 95%**
 - ✅ Backend API complete
 - ✅ Authentication working
-- ✅ Dashboard visualization
-- 🔲 Full UI needed for all features
+- ✅ Dashboard visualization with charts
+- ✅ Full UI for companies and contacts
+- ✅ Inline milestone updates
+- ✅ Deployed to production
+- 🟡 Deal UI pending (API ready)
 - 🔲 Navigation needed
 - 🔲 Polish needed
 
