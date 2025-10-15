@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db import models
 from django.db.models import Count, Q
 from companies.models import Company
@@ -50,6 +51,7 @@ def dashboard(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def company_list(request):
     """View to list all companies."""
     # Get filter and search parameters
@@ -274,20 +276,32 @@ def contact_delete(request, pk):
 @login_required
 def company_update_milestone(request, pk):
     """AJAX endpoint to update company milestone."""
+    from django.http import JsonResponse
+    import json
+    
     if request.method == 'POST':
-        import json
-        from django.http import JsonResponse
-        
         try:
             company = get_object_or_404(Company, pk=pk)
-            data = json.loads(request.body)
+            
+            # Parse JSON body
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError as e:
+                return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
+            
             milestone = data.get('milestone')
+            
+            if not milestone:
+                return JsonResponse({'error': 'Milestone field is required'}, status=400)
             
             # Validate milestone
             valid_milestones = [choice[0] for choice in Company.MILESTONE_CHOICES]
             if milestone not in valid_milestones:
-                return JsonResponse({'error': 'Invalid milestone'}, status=400)
+                return JsonResponse({
+                    'error': f'Invalid milestone value. Valid options: {", ".join(valid_milestones)}'
+                }, status=400)
             
+            # Update the milestone
             company.milestone = milestone
             company.save()
             
@@ -297,6 +311,9 @@ def company_update_milestone(request, pk):
                 'milestone_display': company.get_milestone_display()
             })
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Error updating milestone: {error_details}")  # Log to console
+            return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
     
-    return JsonResponse({'error': 'Method not allowed'}, status=405)
+    return JsonResponse({'error': 'Only POST method is allowed'}, status=405)

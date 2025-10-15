@@ -500,9 +500,23 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('Response status:', response.status);
+                console.log('Response content-type:', response.headers.get('content-type'));
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    // Not JSON - probably HTML error page
+                    return response.text().then(text => {
+                        console.error('Non-JSON response:', text.substring(0, 500));
+                        throw new Error('Server returned an error page. Check if you are logged in.');
+                    });
+                }
+                
                 if (!response.ok) {
                     return response.json().then(err => {
                         throw new Error(err.error || 'Failed to update milestone');
+                    }).catch(jsonError => {
+                        throw new Error('Failed to update milestone (status: ' + response.status + ')');
                     });
                 }
                 return response.json();
@@ -523,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Revert on error
                 this.classList.remove('updating');
                 console.error('Error updating milestone:', error);
-                alert('Failed to update milestone: ' + error.message + '\n\nPlease try again or refresh the page.');
+                alert('Failed to update milestone: ' + error.message + '\n\nPlease check the console for details.');
                 // Reload to get the correct state
                 location.reload();
             });
