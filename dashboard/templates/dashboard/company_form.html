@@ -227,7 +227,8 @@
 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" placeholder="contact@company.com">
+                    <input type="text" id="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" placeholder="contact@company.com">
+                    <small>Optional - Company contact email</small>
                 </div>
 
                 <div class="form-group">

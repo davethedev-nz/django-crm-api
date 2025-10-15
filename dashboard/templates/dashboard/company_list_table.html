@@ -345,6 +345,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="page-header">
     <h1>Companies</h1>
     <a href="{% url 'company_create' %}" class="btn btn-primary">Add New Company</a>
@@ -442,61 +443,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle milestone changes
-    const milestoneSelects = document.querySelectorAll('.milestone-select');
-    
-    milestoneSelects.forEach(select => {
-        select.addEventListener('change', function() {
-            const companyId = this.getAttribute('data-company-id');
-            const newMilestone = this.value;
-            const oldClass = this.className.split(' ').find(c => c !== 'milestone-select' && c !== 'updating');
-            
-            // Add loading state
-            this.classList.add('updating');
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-                             getCookie('csrftoken');
-            
-            // Send AJAX request
-            fetch(`/companies/${companyId}/update-milestone/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    milestone: newMilestone
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to update milestone');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Update the class for styling
-                this.classList.remove('updating');
-                if (oldClass) {
-                    this.classList.remove(oldClass);
-                }
-                this.classList.add(newMilestone);
-                
-                // Optional: Show success feedback
-                console.log('Milestone updated successfully');
-            })
-            .catch(error => {
-                // Revert on error
-                this.classList.remove('updating');
-                console.error('Error updating milestone:', error);
-                alert('Failed to update milestone. Please try again.');
-                // Reload to get the correct state
-                location.reload();
-            });
-        });
-    });
-    
     // Helper function to get CSRF token from cookies
     function getCookie(name) {
         let cookieValue = null;
@@ -512,6 +458,77 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
+    
+    // Get CSRF token - try multiple methods
+    function getCSRFToken() {
+        // Method 1: From hidden input (in base template form)
+        let token = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        if (token) return token;
+        
+        // Method 2: From cookie (most reliable for AJAX)
+        return getCookie('csrftoken');
+    }
+    
+    // Handle milestone changes
+    const milestoneSelects = document.querySelectorAll('.milestone-select');
+    
+    milestoneSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const companyId = this.getAttribute('data-company-id');
+            const newMilestone = this.value;
+            const oldMilestone = this.className.split(' ').find(c => c !== 'milestone-select' && c !== 'updating');
+            
+            // Add loading state
+            this.classList.add('updating');
+            
+            // Get CSRF token
+            const csrfToken = getCSRFToken();
+            
+            console.log('Updating milestone for company:', companyId, 'to:', newMilestone);
+            console.log('CSRF token:', csrfToken ? 'Found' : 'Not found');
+            
+            // Send AJAX request
+            fetch(`/companies/${companyId}/update-milestone/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    milestone: newMilestone
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Failed to update milestone');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                // Update the class for styling
+                this.classList.remove('updating');
+                if (oldMilestone) {
+                    this.classList.remove(oldMilestone);
+                }
+                this.classList.add(newMilestone);
+                
+                // Show success feedback (optional - you can add a toast notification here)
+                console.log('Milestone updated successfully to:', data.milestone_display);
+            })
+            .catch(error => {
+                // Revert on error
+                this.classList.remove('updating');
+                console.error('Error updating milestone:', error);
+                alert('Failed to update milestone: ' + error.message + '\n\nPlease try again or refresh the page.');
+                // Reload to get the correct state
+                location.reload();
+            });
+        });
+    });
 });
 </script>
 {% endblock %}
