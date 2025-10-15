@@ -53,9 +53,7 @@
         }
         
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: block;
             padding: 14px 20px;
             color: white;
             text-decoration: none;
@@ -72,12 +70,6 @@
             background: rgba(255, 255, 255, 0.15);
             border-left-color: white;
             font-weight: 600;
-        }
-        
-        .nav-item-icon {
-            font-size: 20px;
-            width: 24px;
-            text-align: center;
         }
         
         .sidebar-footer {
@@ -186,20 +178,16 @@
         
         <nav class="sidebar-nav">
             <a href="{% url 'dashboard' %}" class="nav-item {% block nav_dashboard %}{% endblock %}">
-                <span class="nav-item-icon">📊</span>
-                <span>Dashboard</span>
+                Dashboard
             </a>
             <a href="{% url 'company_list' %}" class="nav-item {% block nav_companies %}{% endblock %}">
-                <span class="nav-item-icon">🏢</span>
-                <span>Companies</span>
+                Companies
             </a>
-            <a href="/api/contacts/" class="nav-item {% block nav_contacts %}{% endblock %}">
-                <span class="nav-item-icon">👥</span>
-                <span>Contacts</span>
+            <a href="{% url 'contact_list' %}" class="nav-item {% block nav_contacts %}{% endblock %}">
+                Contacts
             </a>
             <a href="/api/deals/" class="nav-item {% block nav_deals %}{% endblock %}">
-                <span class="nav-item-icon">💼</span>
-                <span>Deals</span>
+                Deals
             </a>
         </nav>
         
@@ -213,7 +201,7 @@
             </div>
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn">🚪 Logout</button>
+                <button type="submit" class="logout-btn">Logout</button>
             </form>
         </div>
     </div>

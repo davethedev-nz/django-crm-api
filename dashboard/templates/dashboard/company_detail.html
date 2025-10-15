@@ -1,379 +1,505 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ company.name }} - Django CRM</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "dashboard/base.html" %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+{% block title %}{{ company.name }} - Django CRM{% endblock %}
+{% block nav_companies %}active{% endblock %}
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 10px;
-            padding: 20px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .back-btn {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-        }
-
-        .back-btn:hover {
-            opacity: 0.7;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .company-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .company-title {
-            flex: 1;
-        }
-
-        .company-name {
-            font-size: 32px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .company-industry {
-            color: #666;
-            font-size: 18px;
-        }
-
-        .milestone-badge {
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .milestone-not_contacted {
-            background: #e9ecef;
-            color: #495057;
-        }
-
-        .milestone-first_call {
-            background: #cfe2ff;
-            color: #084298;
-        }
-
-        .milestone-not_interested {
-            background: #f8d7da;
-            color: #842029;
-        }
-
-        .milestone-email_sent {
-            background: #fff3cd;
-            color: #997404;
-        }
-
-        .milestone-meeting_arranged {
-            background: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .milestone-waiting_on_contact {
-            background: #e7d6f8;
-            color: #6c2d9c;
-        }
-
-        .milestone-successful {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .detail-item {
-            display: flex;
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+    
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c0392b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+    }
+    
+    .company-card {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    
+    .company-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 30px;
+        padding-bottom: 30px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .company-title {
+        flex: 1;
+    }
+    
+    .company-name {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .company-industry {
+        color: #666;
+        font-size: 18px;
+    }
+    
+    .milestone-badge {
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .milestone-not_contacted {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .milestone-first_call {
+        background: #cfe2ff;
+        color: #084298;
+    }
+    
+    .milestone-not_interested {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .milestone-email_sent {
+        background: #fff3cd;
+        color: #997404;
+    }
+    
+    .milestone-meeting_arranged {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .milestone-waiting_on_contact {
+        background: #e7d6f8;
+        color: #6c2d9c;
+    }
+    
+    .milestone-successful {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .detail-value {
+        font-size: 16px;
+        color: #333;
+    }
+    
+    .detail-value a {
+        color: #667eea;
+        text-decoration: none;
+    }
+    
+    .detail-value a:hover {
+        text-decoration: underline;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .notes-section {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .notes-content {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        color: #555;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        border-left: 4px solid #667eea;
+    }
+    
+    .empty-notes {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .timestamps {
+        display: flex;
+        gap: 30px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .timestamp-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .timestamp-label {
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Contacts Section */
+    .contacts-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    
+    .contacts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+    }
+    
+    .contact-card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border: 2px solid transparent;
+    }
+    
+    .contact-card:hover {
+        background: white;
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .contact-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .contact-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    
+    .contact-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .contact-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .contact-position {
+        font-size: 12px;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .contact-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .contact-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .empty-contacts {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+    
+    .empty-contacts p {
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 768px) {
+        .page-header {
             flex-direction: column;
-            gap: 5px;
+            gap: 15px;
         }
-
-        .detail-label {
-            font-weight: 600;
-            color: #666;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        
+        .header-actions {
+            width: 100%;
         }
-
-        .detail-value {
-            font-size: 16px;
-            color: #333;
+        
+        .btn {
+            flex: 1;
+            text-align: center;
         }
-
-        .detail-value a {
-            color: #667eea;
-            text-decoration: none;
+        
+        .company-header {
+            flex-direction: column;
+            gap: 15px;
         }
-
-        .detail-value a:hover {
-            text-decoration: underline;
+        
+        .contacts-grid {
+            grid-template-columns: 1fr;
         }
-
-        .notes-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .notes-section h2 {
-            font-size: 20px;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .notes-content {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            color: #555;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .empty-notes {
-            color: #999;
-            font-style: italic;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
+        
         .timestamps {
-            display: flex;
-            gap: 30px;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #666;
-            font-size: 14px;
+            flex-direction: column;
+            gap: 15px;
         }
+    }
+</style>
+{% endblock %}
 
-        .timestamp-item {
-            display: flex;
-            gap: 5px;
-        }
-
-        .timestamp-label {
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .company-header {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .header-actions {
-                flex-direction: column;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-left">
-                <a href="{% url 'company_list' %}" class="back-btn">←</a>
-                <h1>Company Details</h1>
-            </div>
-            <div class="header-actions">
-                <a href="{% url 'dashboard' %}" class="btn btn-sm btn-primary">Dashboard</a>
-                <a href="{% url 'company_list' %}" class="btn btn-sm btn-primary">All Companies</a>
-            </div>
+{% block content %}
+<div class="detail-container">
+    <div class="page-header">
+        <div>
+            <a href="{% url 'company_list' %}" style="color: #667eea; text-decoration: none; font-size: 14px;">← Back to Companies</a>
         </div>
-
-        <div class="card">
-            <div class="company-header">
-                <div class="company-title">
-                    <div class="company-name">{{ company.name }}</div>
-                    {% if company.industry %}
-                    <div class="company-industry">{{ company.industry }}</div>
-                    {% endif %}
-                </div>
-                <span class="milestone-badge milestone-{{ company.milestone }}">
-                    {{ company.get_milestone_display }}
-                </span>
-            </div>
-
-            <div class="details-grid">
-                {% if company.email %}
-                <div class="detail-item">
-                    <div class="detail-label">✉️ Email</div>
-                    <div class="detail-value">
-                        <a href="mailto:{{ company.email }}">{{ company.email }}</a>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if company.phone %}
-                <div class="detail-item">
-                    <div class="detail-label">📞 Phone</div>
-                    <div class="detail-value">
-                        <a href="tel:{{ company.phone }}">{{ company.phone }}</a>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if company.website %}
-                <div class="detail-item">
-                    <div class="detail-label">🌐 Website</div>
-                    <div class="detail-value">
-                        <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer">{{ company.website }}</a>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if company.address %}
-                <div class="detail-item">
-                    <div class="detail-label">📍 Address</div>
-                    <div class="detail-value">{{ company.address }}</div>
-                </div>
+        <div class="header-actions">
+            <a href="{% url 'company_update' company.pk %}" class="btn btn-primary">✏️ Edit</a>
+            <a href="{% url 'company_delete' company.pk %}" class="btn btn-danger">🗑️ Delete</a>
+        </div>
+    </div>
+    
+    <div class="company-card">
+        <div class="company-header">
+            <div class="company-title">
+                <div class="company-name">{{ company.name }}</div>
+                {% if company.industry %}
+                <div class="company-industry">{{ company.industry }}</div>
                 {% endif %}
             </div>
-
-            {% if company.notes %}
-            <div class="notes-section">
-                <h2>📝 Notes</h2>
-                <div class="notes-content">{{ company.notes }}</div>
-            </div>
-            {% else %}
-            <div class="notes-section">
-                <h2>📝 Notes</h2>
-                <div class="notes-content empty-notes">No notes available</div>
+            <span class="milestone-badge milestone-{{ company.milestone }}">
+                {{ company.get_milestone_display }}
+            </span>
+        </div>
+        
+        <div class="details-grid">
+            {% if company.email %}
+            <div class="detail-item">
+                <div class="detail-label">✉️ Email</div>
+                <div class="detail-value">
+                    <a href="mailto:{{ company.email }}">{{ company.email }}</a>
+                </div>
             </div>
             {% endif %}
-
-            <div class="timestamps">
-                <div class="timestamp-item">
-                    <span class="timestamp-label">Created:</span>
-                    <span>{{ company.created_at|date:"F d, Y - g:i A" }}</span>
-                </div>
-                <div class="timestamp-item">
-                    <span class="timestamp-label">Last Updated:</span>
-                    <span>{{ company.updated_at|date:"F d, Y - g:i A" }}</span>
+            
+            {% if company.phone %}
+            <div class="detail-item">
+                <div class="detail-label">📞 Phone</div>
+                <div class="detail-value">
+                    <a href="tel:{{ company.phone }}">{{ company.phone }}</a>
                 </div>
             </div>
-
-            <div class="action-buttons">
-                <a href="{% url 'company_update' company.pk %}" class="btn btn-primary">✏️ Edit Company</a>
-                <a href="{% url 'company_delete' company.pk %}" class="btn btn-danger">🗑️ Delete Company</a>
+            {% endif %}
+            
+            {% if company.website %}
+            <div class="detail-item">
+                <div class="detail-label">🌐 Website</div>
+                <div class="detail-value">
+                    <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer">{{ company.website }}</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if company.address %}
+            <div class="detail-item">
+                <div class="detail-label">📍 Address</div>
+                <div class="detail-value">{{ company.address }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="notes-section">
+            <div class="section-title">📝 Notes</div>
+            <div class="notes-content">
+                {% if company.notes %}
+                {{ company.notes }}
+                {% else %}
+                <span class="empty-notes">No notes available</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="timestamps">
+            <div class="timestamp-item">
+                <span class="timestamp-label">Created</span>
+                <span>{{ company.created_at|date:"F d, Y" }}</span>
+            </div>
+            <div class="timestamp-item">
+                <span class="timestamp-label">Last Updated</span>
+                <span>{{ company.updated_at|date:"F d, Y" }}</span>
             </div>
         </div>
     </div>
-</body>
-</html>
+    
+    <!-- Related Contacts Section -->
+    <div class="contacts-section">
+        <div class="section-header">
+            <div class="section-title">👥 Contacts ({{ company.contacts.count }})</div>
+            <a href="{% url 'contact_create' %}?company={{ company.pk }}" class="btn btn-secondary">➕ Add Contact</a>
+        </div>
+        
+        {% if company.contacts.exists %}
+        <div class="contacts-grid">
+            {% for contact in company.contacts.all %}
+            <a href="{% url 'contact_detail' contact.pk %}" class="contact-card">
+                <div class="contact-header">
+                    <div class="contact-avatar">{{ contact.first_name|first }}{{ contact.last_name|first }}</div>
+                    <div class="contact-info">
+                        <div class="contact-name">{{ contact.full_name }}</div>
+                        {% if contact.position %}
+                        <div class="contact-position">{{ contact.position }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="contact-details">
+                    {% if contact.email %}
+                    <div class="contact-detail-item">
+                        <span>✉️</span>
+                        <span>{{ contact.email }}</span>
+                    </div>
+                    {% endif %}
+                    {% if contact.phone %}
+                    <div class="contact-detail-item">
+                        <span>📞</span>
+                        <span>{{ contact.phone }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-contacts">
+            <p>No contacts associated with this company yet.</p>
+            <a href="{% url 'contact_create' %}?company={{ company.pk }}" class="btn btn-primary">➕ Add First Contact</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

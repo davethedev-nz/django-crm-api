@@ -14,4 +14,11 @@ urlpatterns = [
     path('companies/<int:pk>/', views.company_detail, name='company_detail'),
     path('companies/<int:pk>/edit/', views.company_update, name='company_update'),
     path('companies/<int:pk>/delete/', views.company_delete, name='company_delete'),
+    
+    # Contact URLs
+    path('contacts/', views.contact_list, name='contact_list'),
+    path('contacts/new/', views.contact_create, name='contact_create'),
+    path('contacts/<int:pk>/', views.contact_detail, name='contact_detail'),
+    path('contacts/<int:pk>/edit/', views.contact_update, name='contact_update'),
+    path('contacts/<int:pk>/delete/', views.contact_delete, name='contact_delete'),
 ]

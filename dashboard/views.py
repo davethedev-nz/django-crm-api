@@ -3,8 +3,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from companies.models import Company
+from contacts.models import Contact
 import json
 
 
@@ -152,3 +153,119 @@ def company_delete(request, pk):
         'company': company,
     }
     return render(request, 'dashboard/company_confirm_delete.html', context)
+
+
+# Contact Views
+
+@login_required
+def contact_list(request):
+    """View to list all contacts."""
+    # Get filter and search parameters
+    company_filter = request.GET.get('company', '')
+    search_query = request.GET.get('search', '')
+    
+    # Start with all contacts
+    contacts = Contact.objects.select_related('company').all()
+    
+    # Apply company filter
+    if company_filter:
+        contacts = contacts.filter(company_id=company_filter)
+    
+    # Apply search filter
+    if search_query:
+        contacts = contacts.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(position__icontains=search_query) |
+            Q(company__name__icontains=search_query)
+        )
+    
+    # Get all companies for filter dropdown
+    companies = Company.objects.all().order_by('name')
+    
+    context = {
+        'contacts': contacts,
+        'companies': companies,
+        'current_company': company_filter,
+        'search_query': search_query,
+    }
+    return render(request, 'dashboard/contact_list.html', context)
+
+
+@login_required
+def contact_detail(request, pk):
+    """View to show contact details."""
+    contact = get_object_or_404(Contact.objects.select_related('company'), pk=pk)
+    
+    context = {
+        'contact': contact,
+    }
+    return render(request, 'dashboard/contact_detail.html', context)
+
+
+@login_required
+def contact_create(request):
+    """View to create a new contact."""
+    if request.method == 'POST':
+        contact = Contact(
+            first_name=request.POST.get('first_name'),
+            last_name=request.POST.get('last_name'),
+            email=request.POST.get('email'),
+            phone=request.POST.get('phone') or None,
+            position=request.POST.get('position') or None,
+            company_id=request.POST.get('company') or None,
+            notes=request.POST.get('notes') or None,
+        )
+        contact.save()
+        return redirect('contact_detail', pk=contact.pk)
+    
+    # Get company from query parameter if provided
+    company_id = request.GET.get('company')
+    
+    companies = Company.objects.all().order_by('name')
+    context = {
+        'companies': companies,
+        'preselected_company': company_id,
+    }
+    return render(request, 'dashboard/contact_form.html', context)
+
+
+@login_required
+def contact_update(request, pk):
+    """View to update a contact."""
+    contact = get_object_or_404(Contact, pk=pk)
+    
+    if request.method == 'POST':
+        contact.first_name = request.POST.get('first_name')
+        contact.last_name = request.POST.get('last_name')
+        contact.email = request.POST.get('email')
+        contact.phone = request.POST.get('phone') or None
+        contact.position = request.POST.get('position') or None
+        contact.company_id = request.POST.get('company') or None
+        contact.notes = request.POST.get('notes') or None
+        contact.save()
+        return redirect('contact_detail', pk=contact.pk)
+    
+    companies = Company.objects.all().order_by('name')
+    context = {
+        'contact': contact,
+        'companies': companies,
+        'is_update': True,
+    }
+    return render(request, 'dashboard/contact_form.html', context)
+
+
+@login_required
+def contact_delete(request, pk):
+    """View to delete a contact."""
+    contact = get_object_or_404(Contact, pk=pk)
+    
+    if request.method == 'POST':
+        contact.delete()
+        return redirect('contact_list')
+    
+    context = {
+        'contact': contact,
+    }
+    return render(request, 'dashboard/contact_confirm_delete.html', context)
