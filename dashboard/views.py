@@ -77,7 +77,7 @@ def company_list(request):
         'current_milestone': milestone_filter,
         'search_query': search_query,
     }
-    return render(request, 'dashboard/company_list.html', context)
+    return render(request, 'dashboard/company_list_table.html', context)
 
 
 @login_required
@@ -190,7 +190,7 @@ def contact_list(request):
         'current_company': company_filter,
         'search_query': search_query,
     }
-    return render(request, 'dashboard/contact_list.html', context)
+    return render(request, 'dashboard/contact_list_table.html', context)
 
 
 @login_required
@@ -269,3 +269,34 @@ def contact_delete(request, pk):
         'contact': contact,
     }
     return render(request, 'dashboard/contact_confirm_delete.html', context)
+
+
+@login_required
+def company_update_milestone(request, pk):
+    """AJAX endpoint to update company milestone."""
+    if request.method == 'POST':
+        import json
+        from django.http import JsonResponse
+        
+        try:
+            company = get_object_or_404(Company, pk=pk)
+            data = json.loads(request.body)
+            milestone = data.get('milestone')
+            
+            # Validate milestone
+            valid_milestones = [choice[0] for choice in Company.MILESTONE_CHOICES]
+            if milestone not in valid_milestones:
+                return JsonResponse({'error': 'Invalid milestone'}, status=400)
+            
+            company.milestone = milestone
+            company.save()
+            
+            return JsonResponse({
+                'success': True,
+                'milestone': milestone,
+                'milestone_display': company.get_milestone_display()
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)

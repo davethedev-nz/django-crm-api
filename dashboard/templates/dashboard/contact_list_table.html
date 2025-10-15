@@ -1,0 +1,399 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Contacts - Django CRM{% endblock %}
+{% block nav_contacts %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .page-header h1 {
+        font-size: 32px;
+        color: #333;
+    }
+    
+    .filters {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filters form {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .count-info {
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    /* List View Styles */
+    .contacts-list {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .list-header {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1.5fr 1fr 100px;
+        gap: 15px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .list-item {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1.5fr 1fr 100px;
+        gap: 15px;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        align-items: center;
+        transition: background 0.2s;
+    }
+    
+    .list-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .contact-name-col {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .contact-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    
+    .contact-name-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .contact-name-link {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .contact-name-link:hover {
+        color: #667eea;
+    }
+    
+    .contact-position {
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .contact-email {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .contact-email:hover {
+        color: #667eea;
+        text-decoration: underline;
+    }
+    
+    .contact-phone {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .contact-phone:hover {
+        color: #667eea;
+        text-decoration: underline;
+    }
+    
+    .company-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #e9ecef;
+        color: #495057;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .company-badge:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .actions-col {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+    
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .action-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .action-view {
+        background: #e7f3ff;
+        color: #0066cc;
+    }
+    
+    .action-edit {
+        background: #fff3cd;
+        color: #997404;
+    }
+    
+    .action-delete {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state h2 {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #999;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 968px) {
+        .list-header,
+        .list-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .list-header {
+            display: none;
+        }
+        
+        .list-item {
+            padding: 15px;
+        }
+        
+        .contact-name-col,
+        .actions-col {
+            justify-content: flex-start;
+        }
+        
+        .action-bar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Contacts</h1>
+    <a href="{% url 'contact_create' %}" class="btn btn-primary">Add New Contact</a>
+</div>
+
+<div class="filters">
+    <form method="get" action="{% url 'contact_list' %}">
+        <div class="form-group">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" placeholder="Search by name, email, position, or company" value="{{ search_query }}">
+        </div>
+        <div class="form-group">
+            <label for="company">Filter by Company</label>
+            <select id="company" name="company">
+                <option value="">All Companies</option>
+                {% for company in companies %}
+                <option value="{{ company.pk }}" {% if current_company == company.pk|stringformat:"s" %}selected{% endif %}>{{ company.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0;">
+            <button type="submit" class="btn btn-secondary">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<div class="action-bar">
+    <div class="count-info">
+        {{ contacts.count }} contact{{ contacts.count|pluralize }} found
+    </div>
+</div>
+
+{% if contacts %}
+<div class="contacts-list">
+    <div class="list-header">
+        <div>Contact</div>
+        <div>Email</div>
+        <div>Phone</div>
+        <div>Company</div>
+        <div>Actions</div>
+    </div>
+    
+    {% for contact in contacts %}
+    <div class="list-item">
+        <div class="contact-name-col">
+            <div class="contact-avatar">{{ contact.first_name|first }}{{ contact.last_name|first }}</div>
+            <div class="contact-name-info">
+                <a href="{% url 'contact_detail' contact.pk %}" class="contact-name-link">{{ contact.full_name }}</a>
+                {% if contact.position %}
+                <span class="contact-position">{{ contact.position }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div>
+            {% if contact.email %}
+            <a href="mailto:{{ contact.email }}" class="contact-email">{{ contact.email }}</a>
+            {% else %}
+            <span style="color: #999;">-</span>
+            {% endif %}
+        </div>
+        
+        <div>
+            {% if contact.phone %}
+            <a href="tel:{{ contact.phone }}" class="contact-phone">{{ contact.phone }}</a>
+            {% else %}
+            <span style="color: #999;">-</span>
+            {% endif %}
+        </div>
+        
+        <div>
+            {% if contact.company %}
+            <a href="{% url 'company_detail' contact.company.pk %}" class="company-badge">{{ contact.company.name }}</a>
+            {% else %}
+            <span style="color: #999;">No company</span>
+            {% endif %}
+        </div>
+        
+        <div class="actions-col">
+            <a href="{% url 'contact_detail' contact.pk %}" class="action-icon action-view" title="View">👁️</a>
+            <a href="{% url 'contact_update' contact.pk %}" class="action-icon action-edit" title="Edit">✏️</a>
+            <a href="{% url 'contact_delete' contact.pk %}" class="action-icon action-delete" title="Delete">🗑️</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>No contacts found</h2>
+    <p>{% if search_query or current_company %}Try adjusting your filters{% else %}Get started by adding your first contact{% endif %}</p>
+    <a href="{% url 'contact_create' %}" class="btn btn-primary">Add New Contact</a>
+</div>
+{% endif %}
+{% endblock %}

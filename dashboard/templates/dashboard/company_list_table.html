@@ -1,0 +1,517 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Companies - Django CRM{% endblock %}
+{% block nav_companies %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .page-header h1 {
+        font-size: 32px;
+        color: #333;
+    }
+    
+    .filters {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filters form {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .count-info {
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    /* List View Styles */
+    .companies-list {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .list-header {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1.5fr 1.2fr 100px;
+        gap: 15px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .list-item {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1.5fr 1.2fr 100px;
+        gap: 15px;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        align-items: center;
+        transition: background 0.2s;
+    }
+    
+    .list-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .company-name-col {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .company-name-link {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .company-name-link:hover {
+        color: #667eea;
+    }
+    
+    .company-industry {
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .company-website {
+        font-size: 13px;
+        color: #667eea;
+        text-decoration: none;
+    }
+    
+    .company-website:hover {
+        text-decoration: underline;
+    }
+    
+    .company-email {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .company-email:hover {
+        color: #667eea;
+        text-decoration: underline;
+    }
+    
+    .company-phone {
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .company-phone:hover {
+        color: #667eea;
+        text-decoration: underline;
+    }
+    
+    /* Milestone Dropdown */
+    .milestone-select {
+        padding: 6px 10px;
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        background: white;
+        transition: all 0.2s;
+        width: 100%;
+        max-width: 180px;
+    }
+    
+    .milestone-select:hover {
+        border-color: #667eea;
+    }
+    
+    .milestone-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Milestone colors */
+    .milestone-select.not_contacted {
+        background: #f8f9fa;
+        color: #495057;
+    }
+    
+    .milestone-select.initial_contact {
+        background: #cfe2ff;
+        color: #084298;
+    }
+    
+    .milestone-select.follow_up {
+        background: #fff3cd;
+        color: #997404;
+    }
+    
+    .milestone-select.proposal_sent {
+        background: #d1e7dd;
+        color: #0f5132;
+    }
+    
+    .milestone-select.negotiation {
+        background: #e7d9ff;
+        color: #6f42c1;
+    }
+    
+    .milestone-select.successful {
+        background: #d1e7dd;
+        color: #0a3622;
+    }
+    
+    .milestone-select.not_interested {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .actions-col {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+    }
+    
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .action-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .action-view {
+        background: #e7f3ff;
+        color: #0066cc;
+    }
+    
+    .action-edit {
+        background: #fff3cd;
+        color: #997404;
+    }
+    
+    .action-delete {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 60px 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .empty-state h2 {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .empty-state p {
+        color: #999;
+        margin-bottom: 20px;
+    }
+    
+    /* Loading state */
+    .milestone-select.updating {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    @media (max-width: 968px) {
+        .list-header,
+        .list-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .list-header {
+            display: none;
+        }
+        
+        .list-item {
+            padding: 15px;
+        }
+        
+        .actions-col {
+            justify-content: flex-start;
+        }
+        
+        .action-bar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+        
+        .milestone-select {
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Companies</h1>
+    <a href="{% url 'company_create' %}" class="btn btn-primary">Add New Company</a>
+</div>
+
+<div class="filters">
+    <form method="get" action="{% url 'company_list' %}">
+        <div class="form-group">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" placeholder="Search by name, industry, or email" value="{{ search_query }}">
+        </div>
+        <div class="form-group">
+            <label for="milestone">Filter by Milestone</label>
+            <select id="milestone" name="milestone">
+                <option value="">All Milestones</option>
+                {% for value, label in milestone_choices %}
+                <option value="{{ value }}" {% if current_milestone == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0;">
+            <button type="submit" class="btn btn-secondary">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<div class="action-bar">
+    <div class="count-info">
+        {{ companies.count }} compan{{ companies.count|pluralize:"y,ies" }} found
+    </div>
+</div>
+
+{% if companies %}
+<div class="companies-list">
+    <div class="list-header">
+        <div>Company</div>
+        <div>Website</div>
+        <div>Contact Info</div>
+        <div>Milestone</div>
+        <div>Actions</div>
+    </div>
+    
+    {% for company in companies %}
+    <div class="list-item" data-company-id="{{ company.pk }}">
+        <div class="company-name-col">
+            <a href="{% url 'company_detail' company.pk %}" class="company-name-link">{{ company.name }}</a>
+            {% if company.industry %}
+            <span class="company-industry">{{ company.industry }}</span>
+            {% endif %}
+        </div>
+        
+        <div>
+            {% if company.website %}
+            <a href="{{ company.website }}" target="_blank" rel="noopener" class="company-website">{{ company.website|slice:":40" }}{% if company.website|length > 40 %}...{% endif %}</a>
+            {% else %}
+            <span style="color: #999;">-</span>
+            {% endif %}
+        </div>
+        
+        <div>
+            {% if company.email %}
+            <a href="mailto:{{ company.email }}" class="company-email">{{ company.email }}</a><br>
+            {% endif %}
+            {% if company.phone %}
+            <a href="tel:{{ company.phone }}" class="company-phone">{{ company.phone }}</a>
+            {% endif %}
+            {% if not company.email and not company.phone %}
+            <span style="color: #999;">-</span>
+            {% endif %}
+        </div>
+        
+        <div>
+            <select class="milestone-select {{ company.milestone }}" data-company-id="{{ company.pk }}">
+                {% for value, label in milestone_choices %}
+                <option value="{{ value }}" {% if company.milestone == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="actions-col">
+            <a href="{% url 'company_detail' company.pk %}" class="action-icon action-view" title="View">👁️</a>
+            <a href="{% url 'company_update' company.pk %}" class="action-icon action-edit" title="Edit">✏️</a>
+            <a href="{% url 'company_delete' company.pk %}" class="action-icon action-delete" title="Delete">🗑️</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>No companies found</h2>
+    <p>{% if search_query or current_milestone %}Try adjusting your filters{% else %}Get started by adding your first company{% endif %}</p>
+    <a href="{% url 'company_create' %}" class="btn btn-primary">Add New Company</a>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle milestone changes
+    const milestoneSelects = document.querySelectorAll('.milestone-select');
+    
+    milestoneSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const companyId = this.getAttribute('data-company-id');
+            const newMilestone = this.value;
+            const oldClass = this.className.split(' ').find(c => c !== 'milestone-select' && c !== 'updating');
+            
+            // Add loading state
+            this.classList.add('updating');
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+                             getCookie('csrftoken');
+            
+            // Send AJAX request
+            fetch(`/companies/${companyId}/update-milestone/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    milestone: newMilestone
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update milestone');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update the class for styling
+                this.classList.remove('updating');
+                if (oldClass) {
+                    this.classList.remove(oldClass);
+                }
+                this.classList.add(newMilestone);
+                
+                // Optional: Show success feedback
+                console.log('Milestone updated successfully');
+            })
+            .catch(error => {
+                // Revert on error
+                this.classList.remove('updating');
+                console.error('Error updating milestone:', error);
+                alert('Failed to update milestone. Please try again.');
+                // Reload to get the correct state
+                location.reload();
+            });
+        });
+    });
+    
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}
