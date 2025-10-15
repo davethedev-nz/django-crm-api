@@ -24,3 +24,7 @@ This is a Django REST Framework based CRM (Customer Relationship Management) API
 - Follow RESTful API design principles
 - Return appropriate HTTP status codes
 - Include pagination for list endpoints
+
+## Prompt interactions
+- When generating code, ensure it adheres to the project structure and coding guidelines above.
+- Avoid adding summaries or guides at the end of the generated content.
