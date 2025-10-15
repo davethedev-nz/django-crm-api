@@ -27,12 +27,15 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Create a startup script that runs migrations then starts gunicorn
+# Create a startup script that runs migrations, imports seed data, then starts gunicorn
 RUN echo '#!/bin/bash\n\
 set -e\n\
 echo "Running database migrations..."\n\
 python manage.py migrate --noinput || echo "Migrations failed, continuing..."\n\
 echo "Migrations complete!"\n\
+echo "Importing seed data..."\n\
+python manage.py import_seed_data || echo "Seed data import skipped or failed, continuing..."\n\
+echo "Seed data import complete!"\n\
 echo "Starting gunicorn on port 8000"\n\
 exec gunicorn crm_project.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile -\n\
 ' > /app/start.sh && chmod +x /app/start.sh
