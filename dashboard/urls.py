@@ -14,6 +14,7 @@ urlpatterns = [
     path('companies/<int:pk>/', views.company_detail, name='company_detail'),
     path('companies/<int:pk>/edit/', views.company_update, name='company_update'),
     path('companies/<int:pk>/delete/', views.company_delete, name='company_delete'),
+    path('companies/<int:pk>/update-milestone/', views.company_update_milestone, name='company_update_milestone'),
     
     # Contact URLs
     path('contacts/', views.contact_list, name='contact_list'),
