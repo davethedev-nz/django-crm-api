@@ -147,6 +147,37 @@ python manage.py shell
 - **django-cors-headers 4.5.0** - CORS support
 - **SQLite** - Default database (can be changed to PostgreSQL, MySQL, etc.)
 
+## Development Workflow
+
+### Quick Start for Development
+
+```bash
+# Work on develop branch (safe for experimentation)
+git checkout develop
+
+# Make your changes, then auto-commit
+./scripts/auto_commit_develop.sh "Description of changes"
+
+# Deploy to production when ready
+./scripts/deploy_to_production.sh
+```
+
+### Branch Strategy
+
+- **develop** - Feature development (does NOT trigger deployment)
+- **main** - Production (auto-deploys to Railway)
+
+**📖 See [DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md) for complete workflow guide**
+
+## Documentation
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - Quick setup guide
+- **[DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md)** - Development workflow and branching strategy
+- **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** - Deployment configuration
+- **[RAILWAY_STEPS.md](./RAILWAY_STEPS.md)** - Railway setup steps
+- **[AI_PIPELINE.md](./AI_PIPELINE.md)** - AI automation pipeline
+- **[GIT_CHEATSHEET.md](./GIT_CHEATSHEET.md)** - Git commands reference
+
 ## Next Steps
 
 1. Add authentication and authorization
