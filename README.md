@@ -155,10 +155,13 @@ python manage.py shell
 # Work on develop branch (safe for experimentation)
 git checkout develop
 
-# Make your changes, then auto-commit
+# Option 1: Quick auto-commit
 ./scripts/auto_commit_develop.sh "Description of changes"
 
-# Deploy to production when ready
+# Option 2: AI-powered pipeline (tests + commit + iterate)
+./scripts/ai_pipeline.sh
+
+# Deploy to production when ready (manual merge to main)
 ./scripts/deploy_to_production.sh
 ```
 
@@ -167,16 +170,24 @@ git checkout develop
 - **develop** - Feature development (does NOT trigger deployment)
 - **main** - Production (auto-deploys to Railway)
 
-**📖 See [DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md) for complete workflow guide**
+**📖 See [guides/DEVELOP_WORKFLOW.md](./guides/DEVELOP_WORKFLOW.md) for complete workflow guide**
 
 ## Documentation
 
-- **[QUICKSTART.md](./QUICKSTART.md)** - Quick setup guide
-- **[DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md)** - Development workflow and branching strategy
-- **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** - Deployment configuration
-- **[RAILWAY_STEPS.md](./RAILWAY_STEPS.md)** - Railway setup steps
-- **[AI_PIPELINE.md](./AI_PIPELINE.md)** - AI automation pipeline
-- **[GIT_CHEATSHEET.md](./GIT_CHEATSHEET.md)** - Git commands reference
+### Getting Started
+- **[guides/QUICKSTART.md](./guides/QUICKSTART.md)** - Quick setup guide
+- **[guides/DEVELOP_WORKFLOW.md](./guides/DEVELOP_WORKFLOW.md)** - Development workflow and branching strategy
+
+### Deployment
+- **[guides/DEPLOY_GUIDE.md](./guides/DEPLOY_GUIDE.md)** - Deployment configuration
+- **[guides/RAILWAY_STEPS.md](./guides/RAILWAY_STEPS.md)** - Railway setup steps
+- **[guides/DEPLOY_SETUP.md](./guides/DEPLOY_SETUP.md)** - Deployment setup details
+
+### Development Tools
+- **[guides/AI_PIPELINE.md](./guides/AI_PIPELINE.md)** - AI automation pipeline
+- **[guides/PIPELINE_SETUP.md](./guides/PIPELINE_SETUP.md)** - Pipeline configuration
+- **[guides/GIT_CHEATSHEET.md](./guides/GIT_CHEATSHEET.md)** - Git commands reference
+- **[guides/GITHUB_SETUP.md](./guides/GITHUB_SETUP.md)** - GitHub configuration
 
 ## Next Steps
 

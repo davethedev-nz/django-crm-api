@@ -1,5 +1,5 @@
 #!/bin/bash
-# AI-Powered Auto-Commit Script
+# AI-Powered Auto-Commit Script (Develop Branch)
 # Usage: ./scripts/ai_commit.sh "Your prompt describing changes"
 
 set -e
@@ -11,8 +11,16 @@ if [ -z "$PROMPT" ]; then
     exit 1
 fi
 
-echo "🤖 AI Auto-Commit Pipeline"
+echo "🤖 AI Auto-Commit Pipeline (Develop Branch)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Ensure we're on develop branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" != "develop" ]; then
+    echo "⚠️  Switching to develop branch..."
+    git checkout develop
+    git pull origin develop
+fi
 
 # Check for changes
 if [ -z "$(git status --porcelain)" ]; then
@@ -46,11 +54,14 @@ echo ""
 echo "✅ Committing changes..."
 git commit -m "$COMMIT_MSG"
 
-# Push to remote
+# Push to develop branch
 echo ""
-echo "🚀 Pushing to GitHub..."
-git push
+echo "🚀 Pushing to develop branch..."
+git push origin develop
 
+echo ""
+echo "✨ Changes committed to develop (no deployment triggered)"
+echo "💡 To deploy to production: ./scripts/deploy_to_production.sh"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✨ Auto-commit complete!"

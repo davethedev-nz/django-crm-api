@@ -33,16 +33,17 @@ print_info() {
 # Main pipeline
 main() {
     clear
-    print_header "🤖 AI-POWERED DEVELOPMENT PIPELINE"
+    print_header "🤖 AI-POWERED DEVELOPMENT PIPELINE (Develop Branch)"
     echo ""
     echo "This will:"
-    echo "  1. Check for code changes"
-    echo "  2. Run tests locally"
-    echo "  3. Auto-commit with AI message"
-    echo "  4. Push to GitHub (triggers CI/CD)"
-    echo "  5. Monitor deployment"
-    echo "  6. Watch logs"
-    echo "  7. Iterate on issues"
+    echo "  1. Ensure you're on develop branch"
+    echo "  2. Check for code changes"
+    echo "  3. Run tests locally"
+    echo "  4. Auto-commit with AI message"
+    echo "  5. Push to develop (NO deployment)"
+    echo "  6. Iterate on issues"
+    echo ""
+    echo "💡 To deploy to production, manually run: ./scripts/deploy_to_production.sh"
     echo ""
     read -p "Continue? (y/n): " -n 1 -r
     echo
@@ -51,6 +52,19 @@ main() {
         echo "Aborted."
         exit 1
     fi
+    
+    # Ensure we're on develop branch
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$CURRENT_BRANCH" != "develop" ]; then
+        print_info "Switching to develop branch..."
+        git checkout develop
+        git pull origin develop
+        print_success "Now on develop branch"
+    else
+        print_success "Already on develop branch"
+        git pull origin develop
+    fi
+    echo ""
     
     # Step 1: Check for changes
     print_header "STEP 1: Checking for changes"
@@ -94,38 +108,15 @@ main() {
     print_success "Changes committed: $COMMIT_MSG"
     echo ""
     
-    # Step 4: Push to GitHub
-    print_header "STEP 4: Pushing to GitHub"
-    git push
-    print_success "Pushed to GitHub"
+    # Step 4: Push to develop branch
+    print_header "STEP 4: Pushing to develop branch"
+    git push origin develop
+    print_success "Pushed to develop branch"
+    print_info "✨ Changes are safely committed to develop (no deployment triggered)"
     echo ""
     
-    # Step 5: Monitor CI/CD
-    print_header "STEP 5: Monitoring CI/CD pipeline"
-    print_info "Waiting for GitHub Actions to start..."
-    sleep 5
-    
-    print_info "Watching workflow run..."
-    gh run watch 2>/dev/null || print_info "Workflow started. Check status with: gh run list"
-    echo ""
-    
-    # Step 6: Check deployment status
-    print_header "STEP 6: Checking deployment status"
-    LATEST_RUN=$(gh run list --limit 1 --json conclusion --jq '.[0].conclusion' 2>/dev/null || echo "unknown")
-    
-    if [ "$LATEST_RUN" = "success" ]; then
-        print_success "CI/CD pipeline succeeded!"
-        print_success "Application deployed successfully"
-    elif [ "$LATEST_RUN" = "failure" ]; then
-        print_error "CI/CD pipeline failed"
-        print_info "Check logs with: gh run view"
-    else
-        print_info "CI/CD pipeline status: $LATEST_RUN"
-    fi
-    echo ""
-    
-    # Step 7: Run AI iteration
-    print_header "STEP 7: Running AI iteration analysis"
+    # Step 5: Run AI iteration
+    print_header "STEP 5: Running AI iteration analysis"
     read -p "Run AI iteration to analyze and suggest improvements? (y/n): " -n 1 -r
     echo
     
@@ -134,19 +125,22 @@ main() {
     fi
     echo ""
     
-    # Step 8: Summary
+    # Step 6: Summary
     print_header "🎉 PIPELINE COMPLETE"
     echo ""
     echo "Summary:"
-    echo "  ✅ Code committed and pushed"
-    echo "  ✅ CI/CD pipeline executed"
-    echo "  ✅ Tests run"
+    echo "  ✅ Code committed and pushed to develop"
+    echo "  ✅ Tests run locally"
+    echo "  ✅ Changes are safe on develop branch"
     echo ""
     echo "Next steps:"
-    echo "  • View your repository: gh repo view --web"
-    echo "  • Check workflow runs: gh run list"
-    echo "  • View deployment: gh run view"
-    echo "  • Monitor logs: ./scripts/monitor_logs.py --continuous"
+    echo "  • Continue development: Make more changes and run pipeline again"
+    echo "  • Deploy to production: ./scripts/deploy_to_production.sh"
+    echo "  • View workflow status: ./scripts/workflow_status.sh"
+    echo "  • Check repository: gh repo view --web"
+    echo ""
+    print_info "Remember: develop branch does NOT auto-deploy"
+    print_info "When ready, merge to main with: ./scripts/deploy_to_production.sh"
     echo ""
     
     # Optional: Start log monitoring
