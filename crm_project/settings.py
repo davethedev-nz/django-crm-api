@@ -172,10 +172,17 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Login/Logout redirect URLs
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
-LOGIN_URL = 'login'
+# CSRF settings for Railway deployment
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://localhost:8000,http://127.0.0.1:8000'
+).split(',')
+
+# Session cookie settings
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Login/Logout redirect URLs
 LOGIN_REDIRECT_URL = 'dashboard'
