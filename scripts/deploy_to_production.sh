@@ -22,13 +22,22 @@ git pull origin main
 echo "🔀 Merging develop into main..."
 git merge develop -m "Merge develop into main for production deployment"
 
-# Push to main (triggers auto-deploy)
-echo "🚀 Pushing to main (this will trigger auto-deploy to Railway)..."
+# Push to main (triggers auto-deploy to PRODUCTION)
+echo "🚀 Pushing to main (this will trigger auto-deploy to Railway PRODUCTION)..."
 git push origin main
 
 echo ""
 echo "✅ Successfully deployed to production!"
-echo "🌐 Check deployment status at: https://django-crm-api-production.up.railway.app"
+echo ""
+echo "🌐 Production Environment:"
+echo "   • View logs: railway logs -e production"
+echo "   • Open site: railway open -e production"
+echo "   • Check status: railway status"
+echo ""
+echo "🔧 Development Environment (for testing):"
+echo "   • View logs: railway logs -e development"
+echo "   • Open site: railway open -e development"
 echo ""
 echo "💡 To continue development, switch back to develop:"
 echo "   git checkout develop"
+echo ""

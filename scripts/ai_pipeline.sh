@@ -40,7 +40,7 @@ main() {
     echo "  2. Check for code changes"
     echo "  3. Run tests locally"
     echo "  4. Auto-commit with AI message"
-    echo "  5. Push to develop (NO deployment)"
+    echo "  5. Push to develop (deploys to Railway DEVELOPMENT)"
     echo "  6. Iterate on issues"
     echo ""
     echo "💡 To deploy to production, manually run: ./scripts/deploy_to_production.sh"
@@ -112,11 +112,18 @@ main() {
     print_header "STEP 4: Pushing to develop branch"
     git push origin develop
     print_success "Pushed to develop branch"
-    print_info "✨ Changes are safely committed to develop (no deployment triggered)"
+    print_info "🚀 Deploying to Railway DEVELOPMENT environment..."
     echo ""
     
-    # Step 5: Run AI iteration
-    print_header "STEP 5: Running AI iteration analysis"
+    # Step 5: Monitor Railway deployment (development)
+    print_header "STEP 5: Monitoring Railway deployment (development)"
+    print_info "Waiting for Railway to deploy..."
+    sleep 3
+    print_info "Check deployment: railway logs -e development"
+    echo ""
+    
+    # Step 6: Run AI iteration
+    print_header "STEP 6: Running AI iteration analysis"
     read -p "Run AI iteration to analyze and suggest improvements? (y/n): " -n 1 -r
     echo
     
@@ -125,22 +132,23 @@ main() {
     fi
     echo ""
     
-    # Step 6: Summary
+    # Step 7: Summary
     print_header "🎉 PIPELINE COMPLETE"
     echo ""
     echo "Summary:"
     echo "  ✅ Code committed and pushed to develop"
     echo "  ✅ Tests run locally"
-    echo "  ✅ Changes are safe on develop branch"
+    echo "  ✅ Deployed to Railway DEVELOPMENT environment"
     echo ""
     echo "Next steps:"
+    echo "  • Test on development: railway open -e development"
+    echo "  • View dev logs: railway logs -e development"
     echo "  • Continue development: Make more changes and run pipeline again"
-    echo "  • Deploy to production: ./scripts/deploy_to_production.sh"
+    echo "  • Deploy to PRODUCTION: ./scripts/deploy_to_production.sh"
     echo "  • View workflow status: ./scripts/workflow_status.sh"
-    echo "  • Check repository: gh repo view --web"
     echo ""
-    print_info "Remember: develop branch does NOT auto-deploy"
-    print_info "When ready, merge to main with: ./scripts/deploy_to_production.sh"
+    print_info "🌐 Development URL: Check Railway dashboard"
+    print_info "🚀 To deploy to PRODUCTION: ./scripts/deploy_to_production.sh"
     echo ""
     
     # Optional: Start log monitoring

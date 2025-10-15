@@ -167,8 +167,8 @@ git checkout develop
 
 ### Branch Strategy
 
-- **develop** - Feature development (does NOT trigger deployment)
-- **main** - Production (auto-deploys to Railway)
+- **develop** - Feature development (auto-deploys to Railway DEVELOPMENT)
+- **main** - Production (auto-deploys to Railway PRODUCTION)
 
 **📖 See [guides/DEVELOP_WORKFLOW.md](./guides/DEVELOP_WORKFLOW.md) for complete workflow guide**
 

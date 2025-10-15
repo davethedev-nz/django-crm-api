@@ -60,8 +60,9 @@ echo "🚀 Pushing to develop branch..."
 git push origin develop
 
 echo ""
-echo "✨ Changes committed to develop (no deployment triggered)"
-echo "💡 To deploy to production: ./scripts/deploy_to_production.sh"
+echo "✨ Changes committed to develop"
+echo "🚀 Deploying to Railway DEVELOPMENT environment..."
+echo "💡 To deploy to PRODUCTION: ./scripts/deploy_to_production.sh"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✨ Auto-commit complete!"

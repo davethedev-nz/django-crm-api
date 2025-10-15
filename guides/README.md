@@ -20,12 +20,13 @@ Complete documentation for the Django CRM API project with AI-powered developmen
 6. **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** - Complete deployment guide
 7. **[DEPLOY_SETUP.md](./DEPLOY_SETUP.md)** - Detailed deployment setup
 8. **[RAILWAY_STEPS.md](./RAILWAY_STEPS.md)** - Railway platform configuration
-9. **[RAILWAY_STATUS.md](./RAILWAY_STATUS.md)** - Current Railway deployment status
+9. **[RAILWAY_ENVIRONMENTS.md](./RAILWAY_ENVIRONMENTS.md)** - Railway development & production environments
+10. **[RAILWAY_STATUS.md](./RAILWAY_STATUS.md)** - Current Railway deployment status
 
 ### 🔗 Version Control
 
-10. **[GIT_CHEATSHEET.md](./GIT_CHEATSHEET.md)** - Git commands reference
-11. **[GITHUB_SETUP.md](./GITHUB_SETUP.md)** - GitHub setup and configuration
+11. **[GIT_CHEATSHEET.md](./GIT_CHEATSHEET.md)** - Git commands reference
+12. **[GITHUB_SETUP.md](./GITHUB_SETUP.md)** - GitHub setup and configuration
 
 ## 🎯 Quick Navigation
 
@@ -62,22 +63,22 @@ Set up and manage deployment:
 ## 📖 Documentation by Topic
 
 ### Branch Strategy
-- **develop** - Safe development branch (no auto-deploy)
-- **main** - Production branch (auto-deploys to Railway)
+- **develop** - Safe development branch (auto-deploys to Railway DEVELOPMENT)
+- **main** - Production branch (auto-deploys to Railway PRODUCTION)
 
-See: [DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md)
+See: [DEVELOP_WORKFLOW.md](./DEVELOP_WORKFLOW.md) and [RAILWAY_ENVIRONMENTS.md](./RAILWAY_ENVIRONMENTS.md)
 
 ### Automation Scripts
 
-| Script | Purpose | Branch |
-|--------|---------|--------|
-| `auto_commit_develop.sh` | Quick commit to develop | develop |
-| `ai_commit.sh` | AI-powered commit to develop | develop |
-| `ai_pipeline.sh` | Full AI development pipeline | develop |
-| `deploy_to_production.sh` | Deploy to production | develop → main |
-| `workflow_status.sh` | View current workflow status | any |
+| Script | Purpose | Branch | Deploys To |
+|--------|---------|--------|------------|
+| `auto_commit_develop.sh` | Quick commit to develop | develop | Railway DEV |
+| `ai_commit.sh` | AI-powered commit to develop | develop | Railway DEV |
+| `ai_pipeline.sh` | Full AI development pipeline | develop | Railway DEV |
+| `deploy_to_production.sh` | Deploy to production | develop → main | Railway PROD |
+| `workflow_status.sh` | View current workflow status | any | N/A |
 
-See: [AI_PIPELINE.md](./AI_PIPELINE.md)
+See: [AI_PIPELINE.md](./AI_PIPELINE.md) and [RAILWAY_ENVIRONMENTS.md](./RAILWAY_ENVIRONMENTS.md)
 
 ### Environment Variables
 
