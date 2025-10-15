@@ -24,29 +24,23 @@
         display: flex;
         gap: 15px;
         margin-bottom: 30px;
-        flex-wrap: wrap;
     }
     
     .quick-action-btn {
-        background: white;
-        color: #667eea;
-        border: 2px solid #667eea;
         padding: 12px 24px;
-        border-radius: 8px;
+        background: #667eea;
+        color: white;
         text-decoration: none;
+        border-radius: 8px;
         font-weight: 600;
         transition: all 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 15px;
+        font-size: 14px;
     }
     
     .quick-action-btn:hover {
-        background: #667eea;
-        color: white;
+        background: #5568d3;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
     
     .stats-grid {
@@ -104,7 +98,7 @@
         
         .quick-action-btn {
             width: 100%;
-            justify-content: center;
+            text-align: center;
         }
         
         .stats-grid {
@@ -125,8 +119,8 @@
 </div>
 
 <div class="quick-actions">
-    <a href="{% url 'company_list' %}" class="quick-action-btn">📋 View All Companies</a>
-    <a href="{% url 'company_create' %}" class="quick-action-btn">➕ Add New Company</a>
+    <a href="{% url 'company_list' %}" class="quick-action-btn">View All Companies</a>
+    <a href="{% url 'company_create' %}" class="quick-action-btn">Add New Company</a>
 </div>
 
 <div class="stats-grid">
