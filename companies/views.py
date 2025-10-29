@@ -2,6 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django.http import HttpResponse
 import csv
 import io
 from .models import Company
@@ -161,3 +162,57 @@ class CompanyViewSet(viewsets.ModelViewSet):
                 {'error': f'Error processing CSV: {str(e)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+    
+    @action(detail=False, methods=['get'])
+    def export_csv(self, request):
+        """Export companies to CSV, grouped by industry."""
+        # Get queryset with any applied filters
+        queryset = self.filter_queryset(self.get_queryset()).order_by('industry', 'name')
+        
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="companies_export.csv"'
+        
+        writer = csv.writer(response)
+        
+        # Write header
+        writer.writerow([
+            'Industry',
+            'Company Name',
+            'Website',
+            'Email',
+            'Phone',
+            'Address',
+            'Milestone',
+            'Milestone Status',
+            'Notes',
+            'Created Date',
+            'Updated Date'
+        ])
+        
+        # Group companies by industry and write rows
+        current_industry = None
+        for company in queryset:
+            industry = company.industry or 'No Industry Specified'
+            
+            # Add a blank row between industry groups for readability
+            if current_industry is not None and current_industry != industry:
+                writer.writerow([])  # Blank row
+            
+            current_industry = industry
+            
+            writer.writerow([
+                industry,
+                company.name,
+                company.website or '',
+                company.email or '',
+                company.phone or '',
+                company.address or '',
+                company.milestone,
+                company.get_milestone_display(),
+                company.notes or '',
+                company.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                company.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        
+        return response

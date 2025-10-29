@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db import models
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from companies.models import Company
 from contacts.models import Contact
 import json
@@ -259,6 +259,77 @@ def company_upload_csv(request):
         'success': False,
         'error': 'Invalid request method'
     }, status=405)
+
+
+@login_required
+def company_export_csv(request):
+    """Export companies to CSV, grouped by industry."""
+    # Get filter parameters (same as list view)
+    milestone_filter = request.GET.get('milestone', '')
+    search_query = request.GET.get('search', '')
+    
+    # Start with all companies
+    companies = Company.objects.all().order_by('industry', 'name')
+    
+    # Apply milestone filter
+    if milestone_filter:
+        companies = companies.filter(milestone=milestone_filter)
+    
+    # Apply search filter
+    if search_query:
+        companies = companies.filter(
+            models.Q(name__icontains=search_query) |
+            models.Q(industry__icontains=search_query) |
+            models.Q(email__icontains=search_query)
+        )
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="companies_export.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Write header
+    writer.writerow([
+        'Industry',
+        'Company Name',
+        'Website',
+        'Email',
+        'Phone',
+        'Address',
+        'Milestone',
+        'Milestone Status',
+        'Notes',
+        'Created Date',
+        'Updated Date'
+    ])
+    
+    # Group companies by industry and write rows
+    current_industry = None
+    for company in companies:
+        industry = company.industry or 'No Industry Specified'
+        
+        # Add a blank row between industry groups for readability
+        if current_industry is not None and current_industry != industry:
+            writer.writerow([])  # Blank row
+        
+        current_industry = industry
+        
+        writer.writerow([
+            industry,
+            company.name,
+            company.website or '',
+            company.email or '',
+            company.phone or '',
+            company.address or '',
+            company.milestone,
+            company.get_milestone_display(),
+            company.notes or '',
+            company.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            company.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    return response
 
 
 # Contact Views

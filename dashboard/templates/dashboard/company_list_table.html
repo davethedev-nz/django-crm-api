@@ -349,6 +349,11 @@
 <div class="page-header">
     <h1>Companies</h1>
     <div style="display: flex; gap: 10px;">
+        <a href="{% url 'company_export_csv' %}?milestone={{ current_milestone }}&search={{ search_query }}" 
+           class="btn btn-secondary" 
+           title="Export current view to CSV, grouped by industry">
+            📥 Export CSV
+        </a>
         <button onclick="openUploadModal()" class="btn btn-secondary">📤 Upload CSV</button>
         <a href="{% url 'company_create' %}" class="btn btn-primary">Add New Company</a>
     </div>
