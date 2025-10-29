@@ -25,6 +25,12 @@ This is a Django REST Framework based CRM (Customer Relationship Management) API
 - Return appropriate HTTP status codes
 - Include pagination for list endpoints
 
+## Git & Version Control
+- **ALWAYS** use `bash scripts/auto_commit_develop.sh` when asked to commit changes
+- Never use `git commit` directly - always use the auto-commit script
+- The script automatically stages, commits with timestamp, and pushes to develop branch
+- Only use manual git commands if explicitly asked by the user
+
 ## Prompt interactions
 - When generating code, ensure it adheres to the project structure and coding guidelines above.
 - Avoid adding summaries or guides at the end of the generated content.
