@@ -31,6 +31,13 @@ This is a Django REST Framework based CRM (Customer Relationship Management) API
 - The script automatically stages, commits with timestamp, and pushes to develop branch
 - Only use manual git commands if explicitly asked by the user
 
+## Testing Workflow
+- **DO NOT** use the Simple Browser for testing features locally
+- After implementing features and committing changes, deploy to Railway for testing
+- Test all new features in the Railway deployment environment
+- Use Railway's develop environment for testing before promoting to production
+- Only suggest running the local dev server if the user explicitly requests it
+
 ## Prompt interactions
 - When generating code, ensure it adheres to the project structure and coding guidelines above.
 - Avoid adding summaries or guides at the end of the generated content.
