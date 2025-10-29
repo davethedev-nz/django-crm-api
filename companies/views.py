@@ -1,7 +1,9 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+import csv
+import io
 from .models import Company
 from .serializers import CompanySerializer, CompanyListSerializer
 
@@ -71,3 +73,91 @@ class CompanyViewSet(viewsets.ModelViewSet):
         from deals.serializers import DealListSerializer
         serializer = DealListSerializer(deals, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['post'])
+    def upload_csv(self, request):
+        """Upload companies from CSV file."""
+        csv_file = request.FILES.get('file')
+        
+        if not csv_file:
+            return Response(
+                {'error': 'No file provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if not csv_file.name.endswith('.csv'):
+            return Response(
+                {'error': 'File must be a CSV'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Read CSV file
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+            
+            created_count = 0
+            updated_count = 0
+            errors = []
+            
+            for row_num, row in enumerate(reader, start=2):
+                try:
+                    # Get company name (required field)
+                    name = row.get('name', '').strip()
+                    if not name:
+                        errors.append(f"Row {row_num}: Company name is required")
+                        continue
+                    
+                    # Check if company exists
+                    company, created = Company.objects.get_or_create(
+                        name=name,
+                        defaults={
+                            'website': row.get('website', '').strip() or None,
+                            'email': row.get('email', '').strip() or None,
+                            'phone': row.get('phone', '').strip() or None,
+                            'address': row.get('address', '').strip() or None,
+                            'industry': row.get('industry', '').strip() or None,
+                            'milestone': row.get('milestone', 'not_contacted').strip(),
+                            'notes': row.get('notes', '').strip() or None,
+                        }
+                    )
+                    
+                    if created:
+                        created_count += 1
+                    else:
+                        # Update existing company
+                        if row.get('website'):
+                            company.website = row.get('website').strip()
+                        if row.get('email'):
+                            company.email = row.get('email').strip()
+                        if row.get('phone'):
+                            company.phone = row.get('phone').strip()
+                        if row.get('address'):
+                            company.address = row.get('address').strip()
+                        if row.get('industry'):
+                            company.industry = row.get('industry').strip()
+                        if row.get('milestone'):
+                            milestone = row.get('milestone').strip()
+                            if milestone in dict(Company.MILESTONE_CHOICES):
+                                company.milestone = milestone
+                        if row.get('notes'):
+                            company.notes = row.get('notes').strip()
+                        company.save()
+                        updated_count += 1
+                        
+                except Exception as e:
+                    errors.append(f"Row {row_num}: {str(e)}")
+            
+            return Response({
+                'message': 'CSV upload completed',
+                'created': created_count,
+                'updated': updated_count,
+                'errors': errors
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response(
+                {'error': f'Error processing CSV: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )

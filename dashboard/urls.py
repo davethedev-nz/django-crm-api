@@ -11,6 +11,7 @@ urlpatterns = [
     # Company URLs
     path('companies/', views.company_list, name='company_list'),
     path('companies/new/', views.company_create, name='company_create'),
+    path('companies/upload-csv/', views.company_upload_csv, name='company_upload_csv'),
     path('companies/<int:pk>/', views.company_detail, name='company_detail'),
     path('companies/<int:pk>/edit/', views.company_update, name='company_update'),
     path('companies/<int:pk>/delete/', views.company_delete, name='company_delete'),

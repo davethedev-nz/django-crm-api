@@ -5,9 +5,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db import models
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from companies.models import Company
 from contacts.models import Contact
 import json
+import csv
+import io
 
 
 def register(request):
@@ -155,6 +158,107 @@ def company_delete(request, pk):
         'company': company,
     }
     return render(request, 'dashboard/company_confirm_delete.html', context)
+
+
+@login_required
+def company_upload_csv(request):
+    """View to upload companies from CSV file."""
+    if request.method == 'POST':
+        csv_file = request.FILES.get('csv_file')
+        
+        if not csv_file:
+            return JsonResponse({
+                'success': False,
+                'error': 'No file provided'
+            }, status=400)
+        
+        if not csv_file.name.endswith('.csv'):
+            return JsonResponse({
+                'success': False,
+                'error': 'File must be a CSV'
+            }, status=400)
+        
+        try:
+            # Read CSV file
+            decoded_file = csv_file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+            
+            created_count = 0
+            updated_count = 0
+            errors = []
+            
+            for row_num, row in enumerate(reader, start=2):
+                try:
+                    # Get company name (required field)
+                    name = row.get('name', '').strip()
+                    if not name:
+                        errors.append(f"Row {row_num}: Company name is required")
+                        continue
+                    
+                    # Validate milestone if provided
+                    milestone = row.get('milestone', 'not_contacted').strip()
+                    if milestone and milestone not in dict(Company.MILESTONE_CHOICES):
+                        milestone = 'not_contacted'
+                    
+                    # Check if company exists
+                    company, created = Company.objects.get_or_create(
+                        name=name,
+                        defaults={
+                            'website': row.get('website', '').strip() or None,
+                            'email': row.get('email', '').strip() or None,
+                            'phone': row.get('phone', '').strip() or None,
+                            'address': row.get('address', '').strip() or None,
+                            'industry': row.get('industry', '').strip() or None,
+                            'milestone': milestone,
+                            'notes': row.get('notes', '').strip() or None,
+                        }
+                    )
+                    
+                    if created:
+                        created_count += 1
+                    else:
+                        # Update existing company
+                        if row.get('website'):
+                            company.website = row.get('website').strip()
+                        if row.get('email'):
+                            company.email = row.get('email').strip()
+                        if row.get('phone'):
+                            company.phone = row.get('phone').strip()
+                        if row.get('address'):
+                            company.address = row.get('address').strip()
+                        if row.get('industry'):
+                            company.industry = row.get('industry').strip()
+                        if row.get('milestone'):
+                            milestone_val = row.get('milestone').strip()
+                            if milestone_val in dict(Company.MILESTONE_CHOICES):
+                                company.milestone = milestone_val
+                        if row.get('notes'):
+                            company.notes = row.get('notes').strip()
+                        company.save()
+                        updated_count += 1
+                        
+                except Exception as e:
+                    errors.append(f"Row {row_num}: {str(e)}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'CSV upload completed',
+                'created': created_count,
+                'updated': updated_count,
+                'errors': errors
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error processing CSV: {str(e)}'
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'error': 'Invalid request method'
+    }, status=405)
 
 
 # Contact Views
