@@ -226,9 +226,23 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="primary_contact">Primary Contact</label>
+                    <select id="primary_contact" name="primary_contact">
+                        <option value="">-- No Primary Contact --</option>
+                        {% for contact in contacts %}
+                        <option value="{{ contact.id }}" 
+                                {% if company and company.primary_contact_id == contact.id %}selected{% endif %}>
+                            {{ contact.full_name }}{% if contact.position %} - {{ contact.position }}{% endif %}{% if contact.company %} ({{ contact.company.name }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <small>Select the main contact person for this company</small>
+                </div>
+
+                <div class="form-group">
                     <label for="email">Email</label>
                     <input type="text" id="email" name="email" value="{% if company %}{{ company.email }}{% endif %}" placeholder="contact@company.com">
-                    <small>Optional - Company contact email</small>
+                    <small>Optional - General company email (not contact-specific)</small>
                 </div>
 
                 <div class="form-group">
