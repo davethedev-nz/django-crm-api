@@ -21,6 +21,14 @@ class Company(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     industry = models.CharField(max_length=100, blank=True, null=True)
+    primary_contact = models.ForeignKey(
+        'contacts.Contact',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='primary_for_companies',
+        help_text='Primary contact person for this company'
+    )
     milestone = models.CharField(
         max_length=50,
         choices=MILESTONE_CHOICES,

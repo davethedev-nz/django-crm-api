@@ -61,8 +61,8 @@ def company_list(request):
     milestone_filter = request.GET.get('milestone', '')
     search_query = request.GET.get('search', '')
     
-    # Start with all companies
-    companies = Company.objects.all()
+    # Start with all companies and include primary_contact data
+    companies = Company.objects.select_related('primary_contact').all()
     
     # Apply milestone filter
     if milestone_filter:
@@ -112,14 +112,17 @@ def company_create(request):
             phone=request.POST.get('phone') or None,
             address=request.POST.get('address') or None,
             industry=request.POST.get('industry') or None,
+            primary_contact_id=request.POST.get('primary_contact') or None,
             milestone=request.POST.get('milestone', 'not_contacted'),
             notes=request.POST.get('notes') or None,
         )
         company.save()
         return redirect('company_detail', pk=company.pk)
     
+    contacts = Contact.objects.all().order_by('first_name', 'last_name')
     context = {
         'milestone_choices': Company.MILESTONE_CHOICES,
+        'contacts': contacts,
     }
     return render(request, 'dashboard/company_form.html', context)
 
@@ -136,14 +139,17 @@ def company_update(request, pk):
         company.phone = request.POST.get('phone') or None
         company.address = request.POST.get('address') or None
         company.industry = request.POST.get('industry') or None
+        company.primary_contact_id = request.POST.get('primary_contact') or None
         company.milestone = request.POST.get('milestone')
         company.notes = request.POST.get('notes') or None
         company.save()
         return redirect('company_detail', pk=company.pk)
     
+    contacts = Contact.objects.all().order_by('first_name', 'last_name')
     context = {
         'company': company,
         'milestone_choices': Company.MILESTONE_CHOICES,
+        'contacts': contacts,
         'is_update': True,
     }
     return render(request, 'dashboard/company_form.html', context)

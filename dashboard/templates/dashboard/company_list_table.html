@@ -425,14 +425,21 @@
         </div>
         
         <div>
-            {% if company.email %}
-            <a href="mailto:{{ company.email }}" class="company-email">{{ company.email }}</a><br>
+            {% if company.primary_contact %}
+            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                {{ company.primary_contact.full_name }}
+                {% if company.primary_contact.position %}
+                <span style="font-weight: 400; color: #666; font-size: 12px;">- {{ company.primary_contact.position }}</span>
+                {% endif %}
+            </div>
+            {% if company.primary_contact.email %}
+            <a href="mailto:{{ company.primary_contact.email }}" class="company-email">📧 {{ company.primary_contact.email }}</a><br>
             {% endif %}
-            {% if company.phone %}
-            <a href="tel:{{ company.phone }}" class="company-phone">{{ company.phone }}</a>
+            {% if company.primary_contact.phone %}
+            <a href="tel:{{ company.primary_contact.phone }}" class="company-phone">📞 {{ company.primary_contact.phone }}</a>
             {% endif %}
-            {% if not company.email and not company.phone %}
-            <span style="color: #999;">-</span>
+            {% else %}
+            <span style="color: #999;">No primary contact</span>
             {% endif %}
         </div>
         
