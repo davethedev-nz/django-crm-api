@@ -46,15 +46,16 @@ Exported files follow this naming convention:
 
 Each CSV export includes:
 
-1. **Metadata Section** (commented rows at top)
-   - Export title
-   - Generation timestamp
+1. **Metadata Row** (first row)
+   - Export generation timestamp
    - Total number of records
    - Applied filters (if any)
 
-2. **Data Section**
-   - Column headers
-   - Company data rows, grouped by industry
+2. **Header Row** (second row)
+   - Column names
+
+3. **Data Rows**
+   - Company data, grouped by industry
 
 ### CSV Columns
 
@@ -83,19 +84,15 @@ Companies are automatically grouped by industry in the export:
 ## Example Export
 
 ```csv
-# Companies Export
-# Generated: 2025-10-30 14:30:22
-# Total Records: 8
-# Filters Applied:
-#   - Milestone: First Call
-#   - Search: "tech"
-
+EXPORT INFO - Generated: 2025-10-30 14:30:22,Total Records: 8,Filters: Milestone: First Call; Search: "tech",,,,,,,,
 Industry,Company Name,Website,Email,Phone,Address,Milestone,Milestone Status,Notes,Created Date,Updated Date
 Consulting,Global Tech Services,https://globaltechservices.com,hello@globaltechservices.com,+1-555-0300,"789 Pine Rd, Chicago, IL",first_call,First Call,Technology consulting firm,2025-10-15 10:30:00,2025-10-15 10:30:00
 
 Technology,Acme Tech Corp,https://acmetech.com,contact@acmetech.com,+1-555-0100,"123 Main St, New York, NY",first_call,First Call,Potential client,2025-10-13 14:20:00,2025-10-13 14:20:00
 Technology,Tech Startup Co,https://techstartup.co,team@techstartup.co,+1-555-0400,"321 Elm St, Austin, TX",first_call,First Call,Innovative startup,2025-10-16 11:45:00,2025-10-16 11:45:00
 ```
+
+**Note**: The first row contains export metadata and can be easily deleted in Excel/Google Sheets if you want to work with just the data. The actual data headers start on row 2.
 
 ## Features
 

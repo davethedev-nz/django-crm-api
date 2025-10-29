@@ -306,24 +306,27 @@ def company_export_csv(request):
     
     writer = csv.writer(response)
     
-    # Write export metadata as comments at the top of the file
+    # Write export metadata as a single info row (will appear as first data row in spreadsheets)
     export_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    writer.writerow(['# Companies Export'])
-    writer.writerow([f'# Generated: {export_date}'])
-    writer.writerow([f'# Total Records: {companies.count()}'])
+    total_records = companies.count()
     
-    # Write filter information
-    if milestone_filter or search_query:
-        writer.writerow(['# Filters Applied:'])
-        if milestone_filter:
-            milestone_display = dict(Company.MILESTONE_CHOICES).get(milestone_filter, milestone_filter)
-            writer.writerow([f'#   - Milestone: {milestone_display}'])
-        if search_query:
-            writer.writerow([f'#   - Search: "{search_query}"'])
-    else:
-        writer.writerow(['# Filters Applied: None (All companies)'])
+    # Build filter info
+    filter_info = []
+    if milestone_filter:
+        milestone_display = dict(Company.MILESTONE_CHOICES).get(milestone_filter, milestone_filter)
+        filter_info.append(f'Milestone: {milestone_display}')
+    if search_query:
+        filter_info.append(f'Search: "{search_query}"')
     
-    writer.writerow([])  # Blank row before data
+    filters_text = '; '.join(filter_info) if filter_info else 'None (All companies)'
+    
+    # Write metadata row
+    writer.writerow([
+        f'EXPORT INFO - Generated: {export_date}',
+        f'Total Records: {total_records}',
+        f'Filters: {filters_text}',
+        '', '', '', '', '', '', '', ''
+    ])
     
     # Write header
     writer.writerow([
