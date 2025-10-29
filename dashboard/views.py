@@ -273,22 +273,13 @@ def company_upload_csv(request):
 
 @login_required
 def company_export_csv(request):
-    """Export companies to CSV, grouped by industry."""
+    """Export companies to CSV based on current filters (milestone and search)."""
     # Get filter parameters (same as list view)
     milestone_filter = request.GET.get('milestone', '')
     search_query = request.GET.get('search', '')
-    industry_filter = request.GET.get('industry', '')
     
-    # Start with all companies
+    # Start with all companies, ordered by industry for grouping
     companies = Company.objects.all().order_by('industry', 'name')
-    
-    # Apply industry filter (NEW)
-    if industry_filter:
-        if industry_filter == 'none':
-            # Filter for companies with no industry
-            companies = companies.filter(models.Q(industry__isnull=True) | models.Q(industry=''))
-        else:
-            companies = companies.filter(industry=industry_filter)
     
     # Apply milestone filter
     if milestone_filter:
@@ -302,9 +293,14 @@ def company_export_csv(request):
             models.Q(email__icontains=search_query)
         )
     
-    # Create CSV response
+    # Create CSV response with descriptive filename
+    filename = 'companies_export'
+    if milestone_filter or search_query:
+        filename += '_filtered'
+    filename += '.csv'
+    
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="companies_export.csv"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     writer = csv.writer(response)
     

@@ -362,8 +362,8 @@
 <div class="page-header">
     <h1>Companies</h1>
     <div style="display: flex; gap: 10px;">
-        <button onclick="openExportModal()" class="btn btn-secondary" title="Export companies to CSV">
-            📥 Export CSV
+        <button onclick="exportFilteredCSV()" class="btn btn-secondary" title="Export filtered companies to CSV">
+            📥 Export Filtered Results
         </button>
         <button onclick="openUploadModal()" class="btn btn-secondary">📤 Upload CSV</button>
         <a href="{% url 'company_create' %}" class="btn btn-primary">Add New Company</a>
@@ -670,83 +670,16 @@ window.onclick = function(event) {
         closeUploadModal();
     }
 }
-</script>
 
-<!-- CSV Export Modal -->
-<div id="exportModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Export Companies CSV</h2>
-            <span class="modal-close" onclick="closeExportModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="upload-info">
-                <h3>📊 Export Options</h3>
-                <p>Select which companies you want to export:</p>
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="exportIndustry" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
-                    Filter by Industry
-                </label>
-                <select id="exportIndustry" class="form-control" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
-                    <option value="">All Industries</option>
-                    {% for industry in industries %}
-                    <option value="{{ industry }}">{{ industry }}</option>
-                    {% endfor %}
-                    <option value="none">No Industry Specified</option>
-                </select>
-            </div>
-            
-            <div class="upload-info" style="background: #e8f4f8; border-left: 4px solid #667eea;">
-                <p style="margin: 0; color: #555;">
-                    <strong>ℹ️ Note:</strong> The export will include your current search and milestone filters.
-                    {% if search_query %}
-                    <br>Current search: <strong>"{{ search_query }}"</strong>
-                    {% endif %}
-                    {% if current_milestone %}
-                    <br>Current milestone: <strong>{{ current_milestone }}</strong>
-                    {% endif %}
-                </p>
-            </div>
-            
-            <div class="upload-info" style="margin-top: 15px;">
-                <p style="margin: 0; color: #666; font-size: 14px;">
-                    📥 The CSV will include: Industry, Company Name, Website, Email, Phone, Address, Milestone, Notes, and Timestamps
-                </p>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button onclick="closeExportModal()" class="btn btn-secondary">Cancel</button>
-            <button onclick="exportCSV()" class="btn btn-primary">📥 Download CSV</button>
-        </div>
-    </div>
-</div>
-
-<script>
-// Export Modal Functions
-function openExportModal() {
-    document.getElementById('exportModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeExportModal() {
-    document.getElementById('exportModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function exportCSV() {
-    const industry = document.getElementById('exportIndustry').value;
+// Export filtered companies directly
+function exportFilteredCSV() {
     const currentMilestone = '{{ current_milestone }}';
     const currentSearch = '{{ search_query }}';
     
-    // Build URL with parameters
+    // Build URL with current filter parameters
     let url = '{% url "company_export_csv" %}?';
     const params = [];
     
-    if (industry) {
-        params.push(`industry=${encodeURIComponent(industry)}`);
-    }
     if (currentMilestone) {
         params.push(`milestone=${encodeURIComponent(currentMilestone)}`);
     }
@@ -758,23 +691,6 @@ function exportCSV() {
     
     // Trigger download
     window.location.href = url;
-    
-    // Close modal after short delay
-    setTimeout(() => {
-        closeExportModal();
-    }, 500);
-}
-
-// Update window click handler to close both modals
-window.onclick = function(event) {
-    const uploadModal = document.getElementById('uploadModal');
-    const exportModal = document.getElementById('exportModal');
-    if (event.target === uploadModal) {
-        closeUploadModal();
-    }
-    if (event.target === exportModal) {
-        closeExportModal();
-    }
 }
 </script>
 
