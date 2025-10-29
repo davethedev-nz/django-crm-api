@@ -76,11 +76,15 @@ def company_list(request):
             models.Q(email__icontains=search_query)
         )
     
+    # Get distinct industries for export dropdown
+    industries = Company.objects.exclude(industry__isnull=True).exclude(industry='').values_list('industry', flat=True).distinct().order_by('industry')
+    
     context = {
         'companies': companies,
         'milestone_choices': Company.MILESTONE_CHOICES,
         'current_milestone': milestone_filter,
         'search_query': search_query,
+        'industries': industries,
     }
     return render(request, 'dashboard/company_list_table.html', context)
 
@@ -267,9 +271,18 @@ def company_export_csv(request):
     # Get filter parameters (same as list view)
     milestone_filter = request.GET.get('milestone', '')
     search_query = request.GET.get('search', '')
+    industry_filter = request.GET.get('industry', '')
     
     # Start with all companies
     companies = Company.objects.all().order_by('industry', 'name')
+    
+    # Apply industry filter (NEW)
+    if industry_filter:
+        if industry_filter == 'none':
+            # Filter for companies with no industry
+            companies = companies.filter(models.Q(industry__isnull=True) | models.Q(industry=''))
+        else:
+            companies = companies.filter(industry=industry_filter)
     
     # Apply milestone filter
     if milestone_filter:

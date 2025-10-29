@@ -16,8 +16,20 @@ The Companies page now includes a CSV export feature that allows you to download
 
 3. **Export Data**
    - Click the "📥 Export CSV" button at the top right
+   - A modal will open with export options
+   - Select an industry from the dropdown (or leave as "All Industries")
+   - Click "📥 Download CSV"
    - Your browser will download a file named `companies_export.csv`
-   - The export includes only the companies visible in your current filtered view
+   - The export includes:
+     - Selected industry (or all industries)
+     - Current search filters
+     - Current milestone filters
+
+### Industry Selection Options
+
+- **All Industries** - Exports all companies, grouped by industry
+- **Specific Industry** - Exports only companies in the selected industry (e.g., "Technology", "Manufacturing")
+- **No Industry Specified** - Exports only companies without an industry assigned
 
 ### Via REST API
 
@@ -27,6 +39,8 @@ GET /api/companies/export_csv/
 # With filters
 GET /api/companies/export_csv/?milestone=first_call
 GET /api/companies/export_csv/?search=technology
+GET /api/companies/export_csv/?industry=Technology
+GET /api/companies/export_csv/?industry=Manufacturing&milestone=successful
 ```
 
 ## Export Format
@@ -92,27 +106,39 @@ The grouped format makes it easy to:
 
 ### Sales Analytics
 ```
-1. Filter by milestone: "successful"
-2. Export to CSV
-3. Open in Excel/Google Sheets
-4. Create pivot tables by industry
-5. Identify highest-performing industries
+1. Click "📥 Export CSV" button
+2. Select industry: "Technology"
+3. Export to CSV
+4. Open in Excel/Google Sheets
+5. Analyze technology sector performance
 ```
 
 ### Marketing Campaigns
 ```
-1. Filter by industry: "Technology"
-2. Export to CSV
-3. Import into email marketing tool
-4. Send targeted industry-specific campaigns
+1. Filter by milestone: "first_call"
+2. Click "📥 Export CSV"
+3. Select industry: "Healthcare"
+4. Export to CSV
+5. Import into email marketing tool
+6. Send targeted healthcare industry campaigns
+```
+
+### Industry Comparison
+```
+1. Export "Technology" industry to CSV
+2. Export "Manufacturing" industry to CSV
+3. Compare company counts and milestones
+4. Identify which industries have more successful deals
 ```
 
 ### Reporting
 ```
-1. Export all companies (no filters)
-2. Share with management
-3. Grouped view shows market coverage
-4. Easy to spot industry gaps
+1. Click "📥 Export CSV"
+2. Select "All Industries"
+3. Export to CSV
+4. Share with management
+5. Grouped view shows market coverage
+6. Easy to spot industry gaps
 ```
 
 ## Tips
@@ -142,6 +168,7 @@ The export format is compatible with the CSV upload feature:
 ```
 GET /companies/export-csv/
 Query Parameters:
+  - industry: Filter by specific industry (or "none" for no industry)
   - milestone: Filter by milestone
   - search: Filter by search term
 ```
@@ -150,9 +177,9 @@ Query Parameters:
 ```
 GET /api/companies/export_csv/
 Query Parameters:
+  - industry: Filter by specific industry
   - milestone: Filter by milestone
   - search: Filter by search term
-  - industry: Filter by industry
 ```
 
 ### Performance
