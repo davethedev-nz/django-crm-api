@@ -1,35 +1,26 @@
 # CSV Export Feature for Companies
 
 ## Overview
-The Companies page now includes a CSV export feature that allows you to download company data grouped by industry.
+The Companies page now includes a CSV export feature that allows you to download company data based on your current filtered view, with timestamps and filter documentation.
 
 ## How to Use
 
 ### Via Dashboard UI
 
 1. **Navigate to Companies Page**
-   - Go to http://127.0.0.1:8000/companies/
+   - Go to the Companies page in your CRM dashboard
 
 2. **Apply Filters (Optional)**
    - Use the search box to filter by name, industry, or email
    - Use the milestone dropdown to filter by sales stage
 
 3. **Export Data**
-   - Click the "📥 Export CSV" button at the top right
-   - A modal will open with export options
-   - Select an industry from the dropdown (or leave as "All Industries")
-   - Click "📥 Download CSV"
-   - Your browser will download a file named `companies_export.csv`
+   - Click the "📥 Export Filtered Results" button at the top right
+   - Your browser will download a timestamped CSV file (e.g., `companies_export_20251030_143022.csv`)
    - The export includes:
-     - Selected industry (or all industries)
      - Current search filters
      - Current milestone filters
-
-### Industry Selection Options
-
-- **All Industries** - Exports all companies, grouped by industry
-- **Specific Industry** - Exports only companies in the selected industry (e.g., "Technology", "Manufacturing")
-- **No Industry Specified** - Exports only companies without an industry assigned
+     - Filter metadata at the top of the CSV file
 
 ### Via REST API
 
@@ -39,11 +30,31 @@ GET /api/companies/export_csv/
 # With filters
 GET /api/companies/export_csv/?milestone=first_call
 GET /api/companies/export_csv/?search=technology
-GET /api/companies/export_csv/?industry=Technology
-GET /api/companies/export_csv/?industry=Manufacturing&milestone=successful
+GET /api/companies/export_csv/?milestone=successful&search=tech
 ```
 
 ## Export Format
+
+### File Naming
+
+Exported files follow this naming convention:
+- **Format**: `companies_export_YYYYMMDD_HHMMSS.csv`
+- **Example**: `companies_export_20251030_143022.csv`
+- The timestamp helps you track when the export was generated
+
+### CSV Structure
+
+Each CSV export includes:
+
+1. **Metadata Section** (commented rows at top)
+   - Export title
+   - Generation timestamp
+   - Total number of records
+   - Applied filters (if any)
+
+2. **Data Section**
+   - Column headers
+   - Company data rows, grouped by industry
 
 ### CSV Columns
 
@@ -72,13 +83,18 @@ Companies are automatically grouped by industry in the export:
 ## Example Export
 
 ```csv
+# Companies Export
+# Generated: 2025-10-30 14:30:22
+# Total Records: 8
+# Filters Applied:
+#   - Milestone: First Call
+#   - Search: "tech"
+
 Industry,Company Name,Website,Email,Phone,Address,Milestone,Milestone Status,Notes,Created Date,Updated Date
-Consulting,Global Services Ltd,https://globalservices.com,hello@globalservices.com,+1-555-0300,"789 Pine Rd, Chicago, IL",email_sent,Email sent,Sent proposal on 2025-10-15,2025-10-15 10:30:00,2025-10-15 10:30:00
+Consulting,Global Tech Services,https://globaltechservices.com,hello@globaltechservices.com,+1-555-0300,"789 Pine Rd, Chicago, IL",first_call,First Call,Technology consulting firm,2025-10-15 10:30:00,2025-10-15 10:30:00
 
-Manufacturing,Widget Inc,https://widget.com,info@widget.com,+1-555-0200,"456 Oak Ave, San Francisco, CA",first_call,First Call,Initial discussion held,2025-10-14 09:15:00,2025-10-14 09:15:00
-
-Technology,Acme Corporation,https://acme.com,contact@acme.com,+1-555-0100,"123 Main St, New York, NY",not_contacted,Not yet contacted,Potential client,2025-10-13 14:20:00,2025-10-13 14:20:00
-Technology,Tech Startup Co,https://techstartup.co,team@techstartup.co,+1-555-0400,"321 Elm St, Austin, TX",meeting_arranged,Meeting arranged,Meeting next week,2025-10-16 11:45:00,2025-10-16 11:45:00
+Technology,Acme Tech Corp,https://acmetech.com,contact@acmetech.com,+1-555-0100,"123 Main St, New York, NY",first_call,First Call,Potential client,2025-10-13 14:20:00,2025-10-13 14:20:00
+Technology,Tech Startup Co,https://techstartup.co,team@techstartup.co,+1-555-0400,"321 Elm St, Austin, TX",first_call,First Call,Innovative startup,2025-10-16 11:45:00,2025-10-16 11:45:00
 ```
 
 ## Features

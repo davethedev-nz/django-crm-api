@@ -274,6 +274,8 @@ def company_upload_csv(request):
 @login_required
 def company_export_csv(request):
     """Export companies to CSV based on current filters (milestone and search)."""
+    from datetime import datetime
+    
     # Get filter parameters (same as list view)
     milestone_filter = request.GET.get('milestone', '')
     search_query = request.GET.get('search', '')
@@ -293,16 +295,35 @@ def company_export_csv(request):
             models.Q(email__icontains=search_query)
         )
     
-    # Create CSV response with descriptive filename
-    filename = 'companies_export'
-    if milestone_filter or search_query:
-        filename += '_filtered'
-    filename += '.csv'
+    # Generate timestamp for filename
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # Create CSV response with timestamped filename
+    filename = f'companies_export_{timestamp}.csv'
     
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     writer = csv.writer(response)
+    
+    # Write export metadata as comments at the top of the file
+    export_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    writer.writerow(['# Companies Export'])
+    writer.writerow([f'# Generated: {export_date}'])
+    writer.writerow([f'# Total Records: {companies.count()}'])
+    
+    # Write filter information
+    if milestone_filter or search_query:
+        writer.writerow(['# Filters Applied:'])
+        if milestone_filter:
+            milestone_display = dict(Company.MILESTONE_CHOICES).get(milestone_filter, milestone_filter)
+            writer.writerow([f'#   - Milestone: {milestone_display}'])
+        if search_query:
+            writer.writerow([f'#   - Search: "{search_query}"'])
+    else:
+        writer.writerow(['# Filters Applied: None (All companies)'])
+    
+    writer.writerow([])  # Blank row before data
     
     # Write header
     writer.writerow([
