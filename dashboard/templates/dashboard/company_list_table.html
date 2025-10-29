@@ -158,10 +158,23 @@
         color: #666;
     }
     
+    .industry-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #f0f3ff;
+        color: #667eea;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid #d0d9ff;
+    }
+    
     .company-website {
         font-size: 13px;
         color: #667eea;
         text-decoration: none;
+        display: block;
+        margin-top: 4px;
     }
     
     .company-website:hover {
@@ -388,7 +401,7 @@
 <div class="companies-list">
     <div class="list-header">
         <div>Company</div>
-        <div>Website</div>
+        <div>Industry</div>
         <div>Contact Info</div>
         <div>Milestone</div>
         <div>Actions</div>
@@ -398,16 +411,16 @@
     <div class="list-item" data-company-id="{{ company.pk }}">
         <div class="company-name-col">
             <a href="{% url 'company_detail' company.pk %}" class="company-name-link">{{ company.name }}</a>
-            {% if company.industry %}
-            <span class="company-industry">{{ company.industry }}</span>
+            {% if company.website %}
+            <a href="{{ company.website }}" target="_blank" rel="noopener" class="company-website" style="font-size: 13px; color: #667eea;">🔗 {{ company.website|slice:":30" }}{% if company.website|length > 30 %}...{% endif %}</a>
             {% endif %}
         </div>
         
         <div>
-            {% if company.website %}
-            <a href="{{ company.website }}" target="_blank" rel="noopener" class="company-website">{{ company.website|slice:":40" }}{% if company.website|length > 40 %}...{% endif %}</a>
+            {% if company.industry %}
+            <span class="industry-badge">{{ company.industry }}</span>
             {% else %}
-            <span style="color: #999;">-</span>
+            <span style="color: #999;">No industry</span>
             {% endif %}
         </div>
         
