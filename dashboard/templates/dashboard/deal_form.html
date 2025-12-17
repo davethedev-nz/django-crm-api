@@ -1,0 +1,248 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{% if deal %}Edit Deal{% else %}New Deal{% endif %} - Django CRM{% endblock %}
+{% block nav_deals %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .form-header {
+        margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .form-header p {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-group label .required {
+        color: #dc3545;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px 16px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .help-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>{% if deal %}Edit Deal{% else %}Create New Deal{% endif %}</h1>
+        <p>{% if deal %}Update the deal information below{% else %}Fill in the details to create a new deal{% endif %}</p>
+    </div>
+    
+    {% if error %}
+    <div class="error-message">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title">Deal Title <span class="required">*</span></label>
+            <input type="text" id="title" name="title" value="{{ deal.title }}" required placeholder="e.g., Q1 Software License Deal">
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" placeholder="Brief description of the deal">{{ deal.description }}</textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="value">Deal Value <span class="required">*</span></label>
+                <input type="number" id="value" name="value" value="{{ deal.value }}" step="0.01" min="0" required placeholder="10000.00">
+                <div class="help-text">Enter amount in dollars</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if deal.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="company">Company <span class="required">*</span></label>
+                <select id="company" name="company" required onchange="updateContactOptions()">
+                    <option value="">Select a company</option>
+                    {% for company in companies %}
+                    <option value="{{ company.id }}" {% if deal.company_id == company.id %}selected{% endif %}>{{ company.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="contact">Key Contact Person</label>
+                <select id="contact" name="contact">
+                    <option value="">Select a contact (optional)</option>
+                    {% for contact in contacts %}
+                    <option value="{{ contact.id }}" 
+                            data-company="{{ contact.company_id }}"
+                            {% if deal.contact_id == contact.id %}selected{% endif %}>
+                        {{ contact.full_name }}{% if contact.company %} - {{ contact.company.name }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="help-text">Select the main contact person for this deal</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="expected_close_date">Expected Close Date</label>
+            <input type="date" id="expected_close_date" name="expected_close_date" value="{{ deal.expected_close_date|date:'Y-m-d' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Additional notes or comments about the deal">{{ deal.notes }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% if deal %}💾 Update Deal{% else %}💼 Create Deal{% endif %}</button>
+            <a href="{% if deal %}{% url 'deal_detail' deal.pk %}{% else %}{% url 'deal_list' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function updateContactOptions() {
+    const companySelect = document.getElementById('company');
+    const contactSelect = document.getElementById('contact');
+    const selectedCompanyId = companySelect.value;
+    
+    // Show all contacts or filter by company
+    Array.from(contactSelect.options).forEach((option, index) => {
+        if (index === 0) return; // Skip "Select a contact" option
+        
+        const contactCompanyId = option.dataset.company;
+        
+        if (!selectedCompanyId || contactCompanyId === selectedCompanyId) {
+            option.style.display = '';
+        } else {
+            option.style.display = 'none';
+            if (option.selected) {
+                contactSelect.value = ''; // Deselect if hidden
+            }
+        }
+    });
+}
+
+// Run on page load to set initial state
+document.addEventListener('DOMContentLoaded', updateContactOptions);
+</script>
+{% endblock %}

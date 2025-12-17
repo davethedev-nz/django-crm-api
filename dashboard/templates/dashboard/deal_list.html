@@ -1,0 +1,350 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Deals - Django CRM{% endblock %}
+{% block nav_deals %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .page-header h1 {
+        font-size: 32px;
+        color: #333;
+    }
+    
+    .filters {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filters form {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: end;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .count-info {
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .deals-list {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+    
+    .list-header {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 100px;
+        gap: 15px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .list-item {
+        display: grid;
+        grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 100px;
+        gap: 15px;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        align-items: center;
+        transition: background 0.2s;
+    }
+    
+    .list-item:hover {
+        background: #f8f9fa;
+    }
+    
+    .list-item:last-child {
+        border-bottom: none;
+    }
+    
+    .deal-title-col {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .deal-title-link {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .deal-title-link:hover {
+        color: #667eea;
+    }
+    
+    .deal-description {
+        font-size: 13px;
+        color: #666;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+    }
+    
+    .status-badge.lead {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .status-badge.qualified {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+    
+    .status-badge.proposal {
+        background: #fff3e0;
+        color: #f57c00;
+    }
+    
+    .status-badge.negotiation {
+        background: #ffe0b2;
+        color: #e65100;
+    }
+    
+    .status-badge.closed_won {
+        background: #c8e6c9;
+        color: #2e7d32;
+    }
+    
+    .status-badge.closed_lost {
+        background: #ffcdd2;
+        color: #c62828;
+    }
+    
+    .deal-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2e7d32;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .btn-icon {
+        padding: 8px;
+        border: none;
+        background: #f0f0f0;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    
+    .btn-icon:hover {
+        background: #667eea;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+    
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Deals</h1>
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'deal_create' %}" class="btn btn-primary">💼 Add New Deal</a>
+    </div>
+</div>
+
+<div class="filters">
+    <form method="get" action="{% url 'deal_list' %}">
+        <div class="form-group">
+            <label for="search">Search</label>
+            <input type="text" id="search" name="search" placeholder="Search by title, description, or company" value="{{ search_query }}">
+        </div>
+        <div class="form-group">
+            <label for="status">Filter by Status</label>
+            <select id="status" name="status">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="company">Filter by Company</label>
+            <select id="company" name="company">
+                <option value="">All Companies</option>
+                {% for company in companies %}
+                <option value="{{ company.id }}" {% if current_company|stringformat:"s" == company.id|stringformat:"s" %}selected{% endif %}>{{ company.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0;">
+            <button type="submit" class="btn btn-secondary">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<div class="action-bar">
+    <div class="count-info">
+        {{ deals.count }} deal{{ deals.count|pluralize }} found
+    </div>
+</div>
+
+{% if deals %}
+<div class="deals-list">
+    <div class="list-header">
+        <div>Deal</div>
+        <div>Company</div>
+        <div>Value</div>
+        <div>Status</div>
+        <div>Close Date</div>
+        <div>Actions</div>
+    </div>
+    
+    {% for deal in deals %}
+    <div class="list-item">
+        <div class="deal-title-col">
+            <a href="{% url 'deal_detail' deal.pk %}" class="deal-title-link">{{ deal.title }}</a>
+            {% if deal.description %}
+            <div class="deal-description">{{ deal.description|truncatewords:15 }}</div>
+            {% endif %}
+        </div>
+        
+        <div>
+            <a href="{% url 'company_detail' deal.company.pk %}" style="color: #667eea; text-decoration: none;">
+                {{ deal.company.name }}
+            </a>
+            {% if deal.contact %}
+            <div style="font-size: 12px; color: #999; margin-top: 4px;">
+                Contact: {{ deal.contact.full_name }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="deal-value">
+            ${{ deal.value|floatformat:2 }}
+        </div>
+        
+        <div>
+            <span class="status-badge {{ deal.status }}">{{ deal.get_status_display }}</span>
+        </div>
+        
+        <div>
+            {% if deal.expected_close_date %}
+            {{ deal.expected_close_date|date:"M d, Y" }}
+            {% else %}
+            <span style="color: #999;">Not set</span>
+            {% endif %}
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'deal_update' deal.pk %}" class="btn-icon" title="Edit">✏️</a>
+            <a href="{% url 'deal_delete' deal.pk %}" class="btn-icon" title="Delete">🗑️</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="deals-list">
+    <div class="empty-state">
+        <div class="empty-state-icon">💼</div>
+        <h3>No deals found</h3>
+        <p>{% if search_query or current_status or current_company %}Try adjusting your filters{% else %}Get started by creating your first deal{% endif %}</p>
+        {% if not search_query and not current_status and not current_company %}
+        <a href="{% url 'deal_create' %}" class="btn btn-primary" style="margin-top: 20px;">💼 Create First Deal</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

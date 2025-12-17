@@ -1,0 +1,138 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Delete Deal - Django CRM{% endblock %}
+{% block nav_deals %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    .warning-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+    }
+    
+    .confirm-title {
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .confirm-message {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    
+    .deal-info {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: left;
+    }
+    
+    .deal-info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .deal-info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .deal-info-label {
+        font-weight: 600;
+        color: #666;
+    }
+    
+    .deal-info-value {
+        color: #333;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        margin: 0 5px;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    
+    .button-group {
+        margin-top: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="warning-icon">⚠️</div>
+    <h1 class="confirm-title">Delete Deal?</h1>
+    <p class="confirm-message">
+        Are you sure you want to delete this deal? This action cannot be undone.
+    </p>
+    
+    <div class="deal-info">
+        <div class="deal-info-item">
+            <span class="deal-info-label">Deal Title:</span>
+            <span class="deal-info-value">{{ deal.title }}</span>
+        </div>
+        <div class="deal-info-item">
+            <span class="deal-info-label">Company:</span>
+            <span class="deal-info-value">{{ deal.company.name }}</span>
+        </div>
+        <div class="deal-info-item">
+            <span class="deal-info-label">Value:</span>
+            <span class="deal-info-value">${{ deal.value|floatformat:2 }}</span>
+        </div>
+        <div class="deal-info-item">
+            <span class="deal-info-label">Status:</span>
+            <span class="deal-info-value">{{ deal.get_status_display }}</span>
+        </div>
+    </div>
+    
+    <div class="button-group">
+        <form method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">🗑️ Yes, Delete Deal</button>
+        </form>
+        <a href="{% url 'deal_detail' deal.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

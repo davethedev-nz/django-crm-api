@@ -24,4 +24,11 @@ urlpatterns = [
     path('contacts/<int:pk>/', views.contact_detail, name='contact_detail'),
     path('contacts/<int:pk>/edit/', views.contact_update, name='contact_update'),
     path('contacts/<int:pk>/delete/', views.contact_delete, name='contact_delete'),
+    
+    # Deal URLs
+    path('deals/', views.deal_list, name='deal_list'),
+    path('deals/new/', views.deal_create, name='deal_create'),
+    path('deals/<int:pk>/', views.deal_detail, name='deal_detail'),
+    path('deals/<int:pk>/edit/', views.deal_update, name='deal_update'),
+    path('deals/<int:pk>/delete/', views.deal_delete, name='deal_delete'),
 ]

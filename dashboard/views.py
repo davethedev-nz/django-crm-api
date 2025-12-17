@@ -531,3 +531,187 @@ def company_update_milestone(request, pk):
             return JsonResponse({'error': f'Server error: {str(e)}'}, status=500)
     
     return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+
+# Deal Views
+
+@login_required
+@ensure_csrf_cookie
+def deal_list(request):
+    """View to list all deals."""
+    from deals.models import Deal
+    
+    # Get filter and search parameters
+    status_filter = request.GET.get('status', '')
+    company_filter = request.GET.get('company', '')
+    search_query = request.GET.get('search', '')
+    
+    # Start with all deals and include related data
+    deals = Deal.objects.select_related('company', 'contact').all()
+    
+    # Apply status filter
+    if status_filter:
+        deals = deals.filter(status=status_filter)
+    
+    # Apply company filter
+    if company_filter:
+        deals = deals.filter(company_id=company_filter)
+    
+    # Apply search filter
+    if search_query:
+        deals = deals.filter(
+            models.Q(title__icontains=search_query) |
+            models.Q(description__icontains=search_query) |
+            models.Q(company__name__icontains=search_query)
+        )
+    
+    # Get all companies for the filter dropdown
+    companies = Company.objects.all().order_by('name')
+    
+    context = {
+        'deals': deals,
+        'status_choices': Deal.STATUS_CHOICES,
+        'current_status': status_filter,
+        'current_company': company_filter,
+        'search_query': search_query,
+        'companies': companies,
+    }
+    return render(request, 'dashboard/deal_list.html', context)
+
+
+@login_required
+def deal_detail(request, pk):
+    """View to show deal details."""
+    from deals.models import Deal
+    
+    deal = get_object_or_404(Deal, pk=pk)
+    
+    context = {
+        'deal': deal,
+        'status_choices': Deal.STATUS_CHOICES,
+    }
+    return render(request, 'dashboard/deal_detail.html', context)
+
+
+@login_required
+def deal_create(request):
+    """View to create a new deal."""
+    from deals.models import Deal
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            title = request.POST.get('title')
+            description = request.POST.get('description', '')
+            value = request.POST.get('value')
+            status = request.POST.get('status', 'lead')
+            company_id = request.POST.get('company')
+            contact_id = request.POST.get('contact')
+            expected_close_date = request.POST.get('expected_close_date')
+            notes = request.POST.get('notes', '')
+            
+            # Validate required fields
+            if not title or not company_id or not value:
+                context = {
+                    'error': 'Title, Company, and Value are required fields',
+                    'companies': Company.objects.all().order_by('name'),
+                    'contacts': Contact.objects.all().order_by('first_name'),
+                    'status_choices': Deal.STATUS_CHOICES,
+                }
+                return render(request, 'dashboard/deal_form.html', context)
+            
+            # Create deal
+            deal = Deal.objects.create(
+                title=title,
+                description=description,
+                value=value,
+                status=status,
+                company_id=company_id,
+                contact_id=contact_id if contact_id else None,
+                expected_close_date=expected_close_date if expected_close_date else None,
+                notes=notes
+            )
+            
+            return redirect('deal_detail', pk=deal.pk)
+            
+        except Exception as e:
+            context = {
+                'error': f'Error creating deal: {str(e)}',
+                'companies': Company.objects.all().order_by('name'),
+                'contacts': Contact.objects.all().order_by('first_name'),
+                'status_choices': Deal.STATUS_CHOICES,
+            }
+            return render(request, 'dashboard/deal_form.html', context)
+    
+    # GET request - show form
+    context = {
+        'companies': Company.objects.all().order_by('name'),
+        'contacts': Contact.objects.all().order_by('first_name'),
+        'status_choices': Deal.STATUS_CHOICES,
+    }
+    return render(request, 'dashboard/deal_form.html', context)
+
+
+@login_required
+def deal_update(request, pk):
+    """View to update a deal."""
+    from deals.models import Deal
+    
+    deal = get_object_or_404(Deal, pk=pk)
+    
+    if request.method == 'POST':
+        try:
+            # Update deal fields
+            deal.title = request.POST.get('title')
+            deal.description = request.POST.get('description', '')
+            deal.value = request.POST.get('value')
+            deal.status = request.POST.get('status', 'lead')
+            deal.company_id = request.POST.get('company')
+            
+            contact_id = request.POST.get('contact')
+            deal.contact_id = contact_id if contact_id else None
+            
+            expected_close_date = request.POST.get('expected_close_date')
+            deal.expected_close_date = expected_close_date if expected_close_date else None
+            
+            deal.notes = request.POST.get('notes', '')
+            
+            deal.save()
+            
+            return redirect('deal_detail', pk=deal.pk)
+            
+        except Exception as e:
+            context = {
+                'deal': deal,
+                'error': f'Error updating deal: {str(e)}',
+                'companies': Company.objects.all().order_by('name'),
+                'contacts': Contact.objects.all().order_by('first_name'),
+                'status_choices': Deal.STATUS_CHOICES,
+            }
+            return render(request, 'dashboard/deal_form.html', context)
+    
+    # GET request - show form with current data
+    context = {
+        'deal': deal,
+        'companies': Company.objects.all().order_by('name'),
+        'contacts': Contact.objects.all().order_by('first_name'),
+        'status_choices': Deal.STATUS_CHOICES,
+    }
+    return render(request, 'dashboard/deal_form.html', context)
+
+
+@login_required
+def deal_delete(request, pk):
+    """View to delete a deal."""
+    from deals.models import Deal
+    
+    deal = get_object_or_404(Deal, pk=pk)
+    
+    if request.method == 'POST':
+        deal.delete()
+        return redirect('deal_list')
+    
+    context = {
+        'deal': deal,
+    }
+    return render(request, 'dashboard/deal_confirm_delete.html', context)
